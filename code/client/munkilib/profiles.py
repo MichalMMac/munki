@@ -26,6 +26,7 @@ import tempfile
 import FoundationPlist
 import munkicommon
 
+
 def profiles_supported():
     '''Returns True if config profiles are supported on this OS'''
     darwin_vers = int(os.uname()[2].split('.')[0])
@@ -33,6 +34,8 @@ def profiles_supported():
 
 
 CONFIG_PROFILE_INFO = None
+
+
 def config_profile_info(ignore_cache=False):
     '''Returns a dictionary representing the output of `profiles -C -o`'''
     global CONFIG_PROFILE_INFO
@@ -55,7 +58,7 @@ def config_profile_info(ignore_cache=False):
         try:
             CONFIG_PROFILE_INFO = FoundationPlist.readPlist(
                 output_plist + '.plist')
-        except BaseException, err:
+        except BaseException as err:
             munkicommon.display_error(
                 'Could not read configuration profile info: %s' % err)
             CONFIG_PROFILE_INFO = {}
@@ -117,7 +120,7 @@ def store_profile_receipt_data(identifier, hash_value):
         del profile_data[identifier]
     try:
         FoundationPlist.writePlist(profile_data, profile_receipt_data_path())
-    except BaseException, err:
+    except BaseException as err:
         munkicommon.display_error(
             'Cannot update hash for %s: %s' % (identifier, err))
 
@@ -129,7 +132,7 @@ def read_profile(profile_path):
     except FoundationPlist.NSPropertyListSerializationException:
         # possibly a signed profile
         return read_signed_profile(profile_path)
-    except BaseException, err:
+    except BaseException as err:
         munkicommon.display_error(
             'Error reading profile %s: %s' % (profile_path, err))
         return {}
@@ -149,7 +152,10 @@ def read_signed_profile(profile_path):
     # but... we're going to use an Apple-provided tool instead.
 
     cmd = ['/usr/bin/security', 'cms', '-D', '-i', profile_path]
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    proc = subprocess.Popen(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE)
     stdout, stderr = proc.communicate()
     if proc.returncode:
         # security cms -D couldn't decode the file
@@ -158,7 +164,7 @@ def read_signed_profile(profile_path):
         return {}
     try:
         return FoundationPlist.readPlistFromString(stdout)
-    except FoundationPlist.NSPropertyListSerializationException, err:
+    except FoundationPlist.NSPropertyListSerializationException as err:
         # not a valid plist
         munkicommon.display_error(
             'Error reading profile %s: %s' % (profile_path, err))

@@ -42,7 +42,11 @@ def updateCountMessage(count):
     if count == 1:
         return NSLocalizedString(u"1 pending update", u"One Update message")
     else:
-        return (NSLocalizedString(u"%s pending updates", u"Multiple Updates message") % count)
+        return (
+            NSLocalizedString(
+                u"%s pending updates",
+                u"Multiple Updates message") %
+            count)
 
 
 def getInstallAllButtonTextForCount(count):
@@ -60,18 +64,20 @@ def get_custom_resources():
     if not _html_dir:
         return
     managed_install_dir = munki.pref('ManagedInstallDir')
-    source_path = os.path.join(managed_install_dir, 'client_resources/custom.zip')
+    source_path = os.path.join(
+        managed_install_dir,
+        'client_resources/custom.zip')
     if os.path.exists(source_path):
         dest_path = os.path.join(_html_dir, 'custom')
         if os.path.exists(dest_path):
             try:
                 shutil.rmtree(dest_path, ignore_errors=True)
-            except (OSError, IOError), err:
+            except (OSError, IOError) as err:
                 msclog.debug_log('Error clearing %s: %s' % (dest_path, err))
         if not os.path.exists(dest_path):
             try:
                 os.mkdir(dest_path)
-            except (OSError, IOError), err:
+            except (OSError, IOError) as err:
                 msclog.debug_log('Error creating %s: %s' % (dest_path, err))
         try:
             archive = ZipFile(source_path)
@@ -93,8 +99,10 @@ def get_custom_resources():
                     os.makedirs(os.path.join(dest_path, filename))
                 else:
                     archive.extract(filename, dest_path)
-            except (OSError, IOError), err:
-                msclog.debug_log('Error expanding %s from archive: %s' % (filename, err))
+            except (OSError, IOError) as err:
+                msclog.debug_log(
+                    'Error expanding %s from archive: %s' %
+                    (filename, err))
 
 
 def html_dir():
@@ -111,26 +119,26 @@ def html_dir():
         cache_dir = u'/private/tmp'
     our_cache_dir = os.path.join(cache_dir, bundle_id)
     if not os.path.exists(our_cache_dir):
-         os.makedirs(our_cache_dir)
+        os.makedirs(our_cache_dir)
     _html_dir = os.path.join(our_cache_dir, 'html')
     if os.path.exists(_html_dir):
         # empty it
         shutil.rmtree(_html_dir)
     os.mkdir(_html_dir)
-    
+
     # symlink our static files dir
     resourcesPath = NSBundle.mainBundle().resourcePath()
     source_path = os.path.join(resourcesPath, 'WebResources')
     link_path = os.path.join(_html_dir, 'static')
     os.symlink(source_path, link_path)
-    
+
     # symlink the Managed Installs icons dir
     managed_install_dir = munki.pref('ManagedInstallDir')
     source_path = os.path.join(managed_install_dir, 'icons')
     link_path = os.path.join(_html_dir, 'icons')
     os.symlink(source_path, link_path)
-    
+
     # unzip any custom client resources
     get_custom_resources()
-    
+
     return _html_dir

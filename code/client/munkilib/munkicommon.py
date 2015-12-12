@@ -103,7 +103,7 @@ LOGINWINDOW = (
 APP_DISCOVERY_EXCLUSION_DIRS = set([
     'Volumes', 'tmp', '.vol', '.Trashes', '.MobileBackups', '.Spotlight-V100',
     '.fseventsd', 'Network', 'net', 'home', 'cores', 'dev', 'private',
-    ])
+])
 
 
 class Error(Exception):
@@ -163,7 +163,7 @@ class Popen(subprocess.Popen):
 
         output = []
         inactive = 0
-        while 1:
+        while True:
             (rlist, dummy_wlist, dummy_xlist) = select.select(
                 [f], [], [], 1.0)
 
@@ -276,11 +276,11 @@ def getsteps(num_of_steps, limit):
     steps = []
     current = 0.0
     for i in range(0, num_of_steps):
-        if i == num_of_steps-1:
+        if i == num_of_steps - 1:
             steps.append(int(round(limit)))
         else:
             steps.append(int(round(current)))
-        current += float(limit)/float(num_of_steps-1)
+        current += float(limit) / float(num_of_steps - 1)
     return steps
 
 
@@ -296,7 +296,7 @@ def display_percent_done(current, maximum):
             if current == maximum:
                 percentdone = 100
             else:
-                percentdone = int(float(current)/float(maximum)*100)
+                percentdone = int(float(current) / float(maximum) * 100)
             munkistatus.percent(str(percentdone))
     elif verbose > 0:
         step = getsteps(16, maximum)
@@ -343,7 +343,7 @@ def concat_log_message(msg, *args):
         args = [to_unicode(arg) for arg in args]
         try:
             msg = msg % tuple(args)
-        except TypeError, dummy_err:
+        except TypeError as dummy_err:
             warnings.warn(
                 'String format does not match concat args: %s'
                 % (str(sys.exc_info())))
@@ -604,31 +604,30 @@ def saveappdata():
             app_inventory,
             os.path.join(
                 pref('ManagedInstallDir'), 'ApplicationInventory.plist'))
-    except FoundationPlist.NSPropertyListSerializationException, err:
+    except FoundationPlist.NSPropertyListSerializationException as err:
         display_warning(
             'Unable to save inventory report: %s' % err)
-
 
 
 def printreportitem(label, value, indent=0):
     """Prints a report item in an 'attractive' way"""
     indentspace = '    '
-    if type(value) == type(None):
-        print indentspace*indent, '%s: !NONE!' % label
-    elif type(value) == list or type(value).__name__ == 'NSCFArray':
+    if isinstance(value, type(None)):
+        print indentspace * indent, '%s: !NONE!' % label
+    elif isinstance(value, list) or type(value).__name__ == 'NSCFArray':
         if label:
-            print indentspace*indent, '%s:' % label
+            print indentspace * indent, '%s:' % label
         index = 0
         for item in value:
             index += 1
-            printreportitem(index, item, indent+1)
-    elif type(value) == dict or type(value).__name__ == 'NSCFDictionary':
+            printreportitem(index, item, indent + 1)
+    elif isinstance(value, dict) or type(value).__name__ == 'NSCFDictionary':
         if label:
-            print indentspace*indent, '%s:' % label
+            print indentspace * indent, '%s:' % label
         for subkey in value.keys():
-            printreportitem(subkey, value[subkey], indent+1)
+            printreportitem(subkey, value[subkey], indent + 1)
     else:
-        print indentspace*indent, '%s: %s' % (label, value)
+        print indentspace * indent, '%s: %s' % (label, value)
 
 
 def printreport(reportdict):
@@ -708,6 +707,8 @@ def validPlist(path):
 
 
 _stop_requested = False
+
+
 def stopRequested():
     """Allows user to cancel operations when GUI status is being used"""
     global _stop_requested
@@ -723,7 +724,7 @@ def stopRequested():
             log('### User stopped session ###')
             try:
                 os.unlink(STOP_REQUEST_FLAG)
-            except OSError, err:
+            except OSError as err:
                 display_error(
                     'Could not remove %s: %s', STOP_REQUEST_FLAG, err)
             return True
@@ -949,6 +950,7 @@ def diskImageForMountPoint(path):
                         dmgpath = imagepath
     return dmgpath
 
+
 def mountPointsForDiskImage(dmgpath):
     """
     Returns a list of mountpoints for the given disk image
@@ -1049,7 +1051,7 @@ def gethash(filename, hash_function):
         return 'NOT A FILE'
 
     f = open(filename, 'rb')
-    while 1:
+    while True:
         chunk = f.read(2**16)
         if not chunk:
             break
@@ -1147,7 +1149,7 @@ class Preferences(object):
 
     def get(self, pref_name, default=None):
         """Return a preference or the default value"""
-        if not pref_name in self:
+        if pref_name not in self:
             return default
         else:
             return self.__getitem__(pref_name)
@@ -1155,14 +1157,19 @@ class Preferences(object):
 
 class ManagedInstallsPreferences(Preferences):
     """Preferences which read from /L/P/ManagedInstalls."""
+
     def __init__(self):
         Preferences.__init__(self, 'ManagedInstalls', kCFPreferencesAnyUser)
 
 
 class SecureManagedInstallsPreferences(Preferences):
     """Preferences which read from /private/var/root/L/P/ManagedInstalls."""
+
     def __init__(self):
-        Preferences.__init__(self, 'ManagedInstalls', kCFPreferencesCurrentUser)
+        Preferences.__init__(
+            self,
+            'ManagedInstalls',
+            kCFPreferencesCurrentUser)
 
 
 def reload_prefs():
@@ -1216,7 +1223,7 @@ def pref(pref_name):
         'FollowHTTPRedirects': 'none',
     }
     pref_value = CFPreferencesCopyAppValue(pref_name, BUNDLE_ID)
-    if pref_value == None:
+    if pref_value is None:
         pref_value = default_prefs.get(pref_name)
         # we're using a default value. We'll write it out to
         # /Library/Preferences/<BUNDLE_ID>.plist for admin
@@ -1230,6 +1237,7 @@ def pref(pref_name):
 #####################################################
 # Apple package utilities
 #####################################################
+
 
 def getInstallerPkgInfo(filename):
     """Uses Apple's installer tool to get basic info
@@ -1319,7 +1327,7 @@ class MunkiLooseVersion(version.LooseVersion):
 
 def padVersionString(versString, tupleCount):
     """Normalize the format of a version string"""
-    if versString == None:
+    if versString is None:
         versString = '0'
     components = str(versString).split('.')
     if len(components) > tupleCount:
@@ -1397,7 +1405,8 @@ def getAppBundleExecutable(bundlepath):
             executable = plist['CFBundleName']
         else:
             executable = os.path.splitext(os.path.basename(bundlepath))[0]
-        executable_path = os.path.join(bundlepath, 'Contents/MacOS', executable)
+        executable_path = os.path.join(
+            bundlepath, 'Contents/MacOS', executable)
         if os.path.exists(executable_path):
             return executable_path
     return None
@@ -1455,7 +1464,7 @@ def parsePkgRefs(filename, path_to_pkg=None):
             if 'identifier' in keys and 'version' in keys:
                 pkginfo = {}
                 pkginfo['packageid'] = \
-                       ref.attributes['identifier'].value.encode('UTF-8')
+                    ref.attributes['identifier'].value.encode('UTF-8')
                 pkginfo['version'] = \
                     ref.attributes['version'].value.encode('UTF-8')
                 payloads = ref.getElementsByTagName('payload')
@@ -1465,7 +1474,7 @@ def parsePkgRefs(filename, path_to_pkg=None):
                         pkginfo['installed_size'] = int(
                             payloads[0].attributes[
                                 'installKBytes'].value.encode('UTF-8'))
-                    if not pkginfo in info:
+                    if pkginfo not in info:
                         info.append(pkginfo)
                 # if there isn't a payload, no receipt is left by a flat
                 # pkg, so don't add this to the info array
@@ -1478,7 +1487,7 @@ def parsePkgRefs(filename, path_to_pkg=None):
                 keys = ref.attributes.keys()
                 if 'id' in keys:
                     pkgid = ref.attributes['id'].value.encode('UTF-8')
-                    if not pkgid in pkgref_dict:
+                    if pkgid not in pkgref_dict:
                         pkgref_dict[pkgid] = {'packageid': pkgid}
                     if 'version' in keys:
                         pkgref_dict[pkgid]['version'] = \
@@ -1644,11 +1653,11 @@ def getOnePackageInfo(pkgpath):
         except (AttributeError,
                 FoundationPlist.NSPropertyListSerializationException):
             pkginfo['packageid'] = 'BAD PLIST in %s' % \
-                                    os.path.basename(pkgpath)
+                os.path.basename(pkgpath)
             pkginfo['version'] = '0.0'
-        ## now look for applications to suggest for blocking_applications
+        # now look for applications to suggest for blocking_applications
         #bomlist = getBomList(pkgpath)
-        #if bomlist:
+        # if bomlist:
         #    pkginfo['apps'] = [os.path.basename(item) for item in bomlist
         #                        if item.endswith('.app')]
 
@@ -1797,7 +1806,6 @@ def getInstalledPackageVersion(pkgid):
             display_debug2('\tThis machine has %s, version %s',
                            pkgid, highestversion)
             return highestversion
-
 
     # This package does not appear to be currently installed
     display_debug2('\tThis machine does not have %s' % pkgid)
@@ -2059,13 +2067,13 @@ def getFilesystems():
              f_ffree, f_fsid_0, f_fsid_1, f_owner, f_type, f_flags,
              f_fssubtype,
              f_fstypename, f_mntonname, f_mntfromname) = struct.unpack(
-                 statfs_struct, str(buf[ofs:ofs+sizeof_statfs_struct]))
+                 statfs_struct, str(buf[ofs:ofs + sizeof_statfs_struct]))
         elif mode == 32:
             (f_otype, f_oflags, f_bsize, f_iosize, f_blocks, f_bfree, f_bavail,
              f_files, f_ffree, f_fsid, f_owner, f_reserved1, f_type, f_flags,
              f_reserved2_0, f_reserved2_1, f_fstypename, f_mntonname,
              f_mntfromname) = struct.unpack(
-                 statfs_struct, str(buf[ofs:ofs+sizeof_statfs_struct]))
+                 statfs_struct, str(buf[ofs:ofs + sizeof_statfs_struct]))
 
         try:
             st = os.stat(_asciizToStr(f_mntonname))
@@ -2084,6 +2092,8 @@ def getFilesystems():
 
 
 FILESYSTEMS = {}
+
+
 def isExcludedFilesystem(path, _retry=False):
     """Gets filesystem information for a path and determine if it should be
     excluded from application searches.
@@ -2153,7 +2163,7 @@ def findAppsInDirs(dirlist):
     while query.isGathering() and runtime <= maxruntime:
         runtime += 0.3
         NSRunLoop.currentRunLoop(
-            ).runUntilDate_(NSDate.dateWithTimeIntervalSinceNow_(0.3))
+        ).runUntilDate_(NSDate.dateWithTimeIntervalSinceNow_(0.3))
     query.stopQuery()
 
     if runtime >= maxruntime:
@@ -2182,7 +2192,7 @@ def getSpotlightInstalledApplications():
     for f in listdir(u'/'):
         p = os.path.join(u'/', f)
         if os.path.isdir(p) and not os.path.islink(p) \
-                            and not isExcludedFilesystem(p):
+                and not isExcludedFilesystem(p):
             if f.endswith('.app'):
                 applist.append(p)
             else:
@@ -2190,14 +2200,14 @@ def getSpotlightInstalledApplications():
 
     # Future code changes may mean we wish to look for Applications
     # installed on any r/w local volume.
-    #for f in listdir(u'/Volumes'):
+    # for f in listdir(u'/Volumes'):
     #    p = os.path.join(u'/Volumes', f)
     #    if os.path.isdir(p) and not os.path.islink(p) \
     #                        and not isExcludedFilesystem(p):
     #        dirlist.append(p)
 
     # /Users is not currently excluded, so no need to add /Users/Shared.
-    #dirlist.append(u'/Users/Shared')
+    # dirlist.append(u'/Users/Shared')
 
     applist.extend(findAppsInDirs(dirlist))
     return applist
@@ -2228,6 +2238,8 @@ def getLSInstalledApplications():
 # we save SP_APPCACHE in a global to avoid querying system_profiler more than
 # once per session for application data, which can be slow
 SP_APPCACHE = None
+
+
 def getSPApplicationData():
     '''Uses system profiler to get application info for this machine'''
     global SP_APPCACHE
@@ -2258,6 +2270,8 @@ def getSPApplicationData():
 # we save APPDATA in a global to avoid querying LaunchServices more than
 # once per session
 APPDATA = None
+
+
 def getAppData():
     """Gets info on currently installed apps.
     Returns a list of dicts containing path, name, version and bundleid"""
@@ -2316,7 +2330,7 @@ def getRunningProcesses():
                                     stderr=subprocess.PIPE)
             (output, dummy_err) = proc.communicate()
             if proc.returncode == 0:
-                carbon_apps = [item[len(LaunchCFMApp)+1:]
+                carbon_apps = [item[len(LaunchCFMApp) + 1:]
                                for item in output.splitlines()
                                if item.startswith(LaunchCFMApp)]
                 if carbon_apps:
@@ -2373,6 +2387,7 @@ def get_ipv4_addresses():
             pass
     return ip_addresses
 
+
 def getIntel64Support():
     """Does this machine support 64-bit Intel instruction set?"""
     libc = ctypes.cdll.LoadLibrary(ctypes.util.find_library("c"))
@@ -2390,6 +2405,8 @@ def getIntel64Support():
         return False
 
 MACHINE = {}
+
+
 def getMachineFacts():
     """Gets some facts about this machine we use to determine if a given
     installer is applicable to this OS or hardware"""
@@ -2398,10 +2415,12 @@ def getMachineFacts():
         MACHINE['arch'] = os.uname()[4]
         MACHINE['os_vers'] = getOsVersion(only_major_minor=False)
         hardware_info = get_hardware_info()
-        MACHINE['machine_model'] = hardware_info.get('machine_model', 'UNKNOWN')
+        MACHINE['machine_model'] = hardware_info.get(
+            'machine_model', 'UNKNOWN')
         MACHINE['munki_version'] = get_version()
         MACHINE['ipv4_address'] = get_ipv4_addresses()
-        MACHINE['serial_number'] = hardware_info.get('serial_number', 'UNKNOWN')
+        MACHINE['serial_number'] = hardware_info.get(
+            'serial_number', 'UNKNOWN')
 
         if MACHINE['arch'] == 'x86_64':
             MACHINE['x86_64_capable'] = True
@@ -2411,6 +2430,8 @@ def getMachineFacts():
 
 
 CONDITIONS = {}
+
+
 def getConditions():
     """Fetches key/value pairs from condition scripts
     which can be placed into /usr/local/munki/conditions"""
@@ -2445,7 +2466,7 @@ def getConditions():
                         utils.runExternalScript(conditionalscriptpath))
                 except utils.ScriptNotFoundError:
                     pass  # script is not required, so pass
-                except utils.RunExternalScriptError, err:
+                except utils.RunExternalScriptError as err:
                     print >> sys.stderr, str(err)
         else:
             # /usr/local/munki/conditions does not exist
@@ -2475,7 +2496,7 @@ def isAppRunning(appname):
     elif appname.endswith('.app'):
         # search by filename
         matching_items = [item for item in proc_list
-                          if '/'+ appname + '/Contents/MacOS/' in item]
+                          if '/' + appname + '/Contents/MacOS/' in item]
     else:
         # check executable name
         matching_items = [item for item in proc_list
@@ -2483,7 +2504,7 @@ def isAppRunning(appname):
     if not matching_items:
         # try adding '.app' to the name and check again
         matching_items = [item for item in proc_list
-                          if '/'+ appname + '.app/Contents/MacOS/' in item]
+                          if '/' + appname + '.app/Contents/MacOS/' in item]
 
     if matching_items:
         # it's running!
@@ -2507,12 +2528,13 @@ def getAvailableDiskSpace(volumepath='/'):
         volumepath = '/'
     try:
         st = os.statvfs(volumepath)
-    except OSError, e:
+    except OSError as e:
         display_error(
             'Error getting disk space in %s: %s', volumepath, str(e))
         return 0
 
-    return int(st.f_frsize * st.f_bavail / 1024) # f_bavail matches df(1) output
+    # f_bavail matches df(1) output
+    return int(st.f_frsize * st.f_bavail / 1024)
 
 
 def tmpdir():
@@ -2529,7 +2551,7 @@ def cleanUpTmpDir():
     if _TMPDIR:
         try:
             shutil.rmtree(_TMPDIR)
-        except (OSError, IOError), err:
+        except (OSError, IOError) as err:
             display_warning(
                 'Unable to clean up temporary dir %s: %s', _TMPDIR, str(err))
         _TMPDIR = None
@@ -2555,9 +2577,9 @@ def listdir(path):
     # https://developer.apple.com/library/mac/#qa/qa2001/qa1235.html
     # http://lists.zerezo.com/git/msg643117.html
     # http://unicode.org/reports/tr15/    section 1.2
-    if type(path) is str:
+    if isinstance(path, str):
         path = unicode(path, 'utf-8')
-    elif type(path) is not unicode:
+    elif not isinstance(path, unicode):
         path = unicode(path)
     return os.listdir(path)
 
@@ -2675,7 +2697,7 @@ def runScript(itemname, path, scriptname, suppress_error=False):
                                 stdin=subprocess.PIPE,
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT)
-    except OSError, e:
+    except OSError as e:
         display_error(
             'Error executing script %s: %s' % (scriptname, str(e)))
         return -1
@@ -2694,10 +2716,10 @@ def runScript(itemname, path, scriptname, suppress_error=False):
     if retcode and not suppress_error:
         display_error(
             'Running %s for %s failed.' % (scriptname, itemname))
-        display_error("-"*78)
+        display_error("-" * 78)
         for line in scriptoutput:
             display_error("\t%s" % line.rstrip("\n"))
-        display_error("-"*78)
+        display_error("-" * 78)
     elif not suppress_error:
         log('Running %s for %s was successful.' % (scriptname, itemname))
 
@@ -2731,7 +2753,7 @@ def forceLogoutNow():
             except OSError:
                 pass
 
-    except BaseException, err:
+    except BaseException as err:
         display_error('Exception in forceLogoutNow(): %s' % str(err))
 
 
@@ -2766,6 +2788,7 @@ verbose = 1
 munkistatusoutput = False
 _TMPDIR = None
 report = {}
+
 
 def main():
     """Placeholder"""

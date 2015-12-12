@@ -34,6 +34,7 @@ import mschtml
 import msclog
 import MunkiItems
 
+
 class MSCAppDelegate(NSObject):
 
     mainWindowController = IBOutlet()
@@ -47,24 +48,25 @@ class MSCAppDelegate(NSObject):
         '''NSApplication delegate method called at launch'''
         # setup client logging
         msclog.setup_logging()
-        
+
         # userInfo dict can be nil, seems to be with 10.6
         if sender.userInfo():
-            userNotification = sender.userInfo().get('NSApplicationLaunchUserNotificationKey')
+            userNotification = sender.userInfo().get(
+                'NSApplicationLaunchUserNotificationKey')
             # we get this notification at launch because it's too early to have declared ourself
             # a NSUserNotificationCenterDelegate
             if userNotification:
                 NSLog("Launched via Notification interaction")
                 self.userNotificationCenter_didActivateNotification_(
                     NSUserNotificationCenter.defaultUserNotificationCenter(), userNotification)
-        
+
         # Prevent automatic relaunching at login on Lion+
         if NSApp.respondsToSelector_('disableRelaunchOnLogin'):
             NSApp.disableRelaunchOnLogin()
 
         ver = NSBundle.mainBundle().infoDictionary().get('CFBundleShortVersionString')
         msclog.log("MSC", "launched", "VER=%s" % ver)
-        
+
         # if we're running under Snow Leopard, swap out the Dock icon for one
         # without the Retina assets to avoid an appearance issue when the
         # icon has a badge in the Dock (and App Switcher)
@@ -102,7 +104,7 @@ class MSCAppDelegate(NSObject):
             # check for updates if we have optional items selected for install
             # or removal that have not yet been processed
             self.mainWindowController.checkForUpdates()
-        
+
         # load the initial view only if we are not already loading something else.
         # enables launching the app to a specific panel, eg. from URL handler
         if not self.mainWindowController.webView.isLoading():
@@ -131,16 +133,20 @@ class MSCAppDelegate(NSObject):
             mschtml.build_page(filename)
             self.mainWindowController.load_page(filename)
         else:
-            msclog.debug_log("%s doesn't have a valid extension. Prevented from opening" % url)
+            msclog.debug_log(
+                "%s doesn't have a valid extension. Prevented from opening" %
+                url)
 
     def openURL_withReplyEvent_(self, event, replyEvent):
         '''Handle openURL messages'''
         keyDirectObject = struct.unpack(">i", "----")[0]
-        url = event.paramDescriptorForKeyword_(keyDirectObject).stringValue().decode('utf8')
+        url = event.paramDescriptorForKeyword_(
+            keyDirectObject).stringValue().decode('utf8')
         msclog.log("MSU", "Called by external URL: %s", url)
         self.openMunkiURL(url)
 
-    def userNotificationCenter_didActivateNotification_(self, center, notification):
+    def userNotificationCenter_didActivateNotification_(
+            self, center, notification):
         '''User clicked on a Notification Center alert'''
         user_info = notification.userInfo()
         if user_info.get('action') == 'open_url':
@@ -149,10 +155,13 @@ class MSCAppDelegate(NSObject):
             self.openMunkiURL(url)
             center.removeDeliveredNotification_(notification)
         else:
-            msclog.log("MSU", "Got user notification with unrecognized userInfo")
+            msclog.log(
+                "MSU", "Got user notification with unrecognized userInfo")
 
-    def userNotificationCenter_shouldPresentNotification_(self, center, notification):
+    def userNotificationCenter_shouldPresentNotification_(
+            self, center, notification):
         return True
 
-    def userNotificationCenter_didDeliverNotification_(self, center, notification):
+    def userNotificationCenter_didDeliverNotification_(
+            self, center, notification):
         pass

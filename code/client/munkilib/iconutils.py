@@ -205,7 +205,8 @@ def extractAppIconsFromBundlePkg(pkg_path):
         err = extractAppBitsFromPkgArchive(archive_path, exporttmp)
         if err == 0:
             for info_path in pkg_dict[pkg]:
-                full_path = os.path.normpath(os.path.join(exporttmp, info_path))
+                full_path = os.path.normpath(
+                    os.path.join(exporttmp, info_path))
                 app_path = os.path.dirname(os.path.dirname(full_path))
                 icon_path = findIconForApp(app_path)
                 if icon_path:

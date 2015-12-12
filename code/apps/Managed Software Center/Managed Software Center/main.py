@@ -5,14 +5,15 @@
 #  Created by Greg Neagle on 2/14/13.
 #
 
-#import modules required by application
+# import modules required by application
 import objc
 import Foundation
 import AppKit
 
 from PyObjCTools import AppHelper
 
-# import modules containing classes required to start application and load MainMenu.nib
+# import modules containing classes required to start application and load
+# MainMenu.nib
 import MSCAppDelegate
 import MSCMainWindowController
 import MSCStatusController

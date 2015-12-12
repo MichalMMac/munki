@@ -21,7 +21,7 @@ Created by Greg Neagle on 2011-09-29.
 
 """
 
-#standard libs
+# standard libs
 import calendar
 import errno
 import os
@@ -31,7 +31,7 @@ import urllib2
 import urlparse
 import xattr
 
-#our libs
+# our libs
 import keychain
 import munkicommon
 from gurl import Gurl
@@ -53,7 +53,7 @@ XATTR_SHA = 'com.googlecode.munki.sha256'
 machine = munkicommon.getMachineFacts()
 darwin_version = os.uname()[2]
 #python_version = "%d.%d.%d" % sys.version_info[:3]
-#cfnetwork_version = FoundationPlist.readPlist(
+# cfnetwork_version = FoundationPlist.readPlist(
 #  "/System/Library/Frameworks/CFNetwork.framework/Resources/Info.plist")[
 #       'CFBundleShortVersionString']
 DEFAULT_USER_AGENT = "managedsoftwareupdate/%s Darwin/%s" % (
@@ -64,21 +64,26 @@ class GurlError(Exception):
     """General exception for gurl errors"""
     pass
 
+
 class HTTPError(Exception):
     """General exception for http/https errors"""
     pass
+
 
 class MunkiDownloadError(Exception):
     """Base exception for download errors"""
     pass
 
+
 class GurlDownloadError(MunkiDownloadError):
     """Gurl failed to download the item"""
     pass
 
+
 class FileCopyError(MunkiDownloadError):
     """Download failed because of file copy errors."""
     pass
+
 
 class PackageVerificationError(MunkiDownloadError):
     """Package failed verification"""
@@ -193,13 +198,13 @@ def get_url(url, destinationpath,
         # safely kill the connection then re-raise
         connection.cancel()
         raise
-    except Exception, err: # too general, I know
+    except Exception as err:  # too general, I know
         # Let us out! ... Safely! Unexpectedly quit dialogs are annoying...
         connection.cancel()
         # Re-raise the error as a GurlError
         raise GurlError(-1, str(err))
 
-    if connection.error != None:
+    if connection.error is not None:
         # Gurl returned an error
         munkicommon.display_detail(
             'Download error %s: %s', connection.error.code(),
@@ -214,7 +219,7 @@ def get_url(url, destinationpath,
         raise GurlError(connection.error.code(),
                         connection.error.localizedDescription())
 
-    if connection.response != None:
+    if connection.response is not None:
         munkicommon.display_debug1('Status: %s', connection.status)
         munkicommon.display_debug1('Headers: %s', connection.headers)
     if connection.redirection != []:
@@ -242,6 +247,7 @@ def get_url(url, destinationpath,
                 pass
         raise HTTPError(connection.status,
                         connection.headers.get('http_result_description', ''))
+
 
 def getResourceIfChangedAtomically(url,
                                    destinationpath,
@@ -274,7 +280,7 @@ def getResourceIfChangedAtomically(url,
         if not xattr_hash:
             xattr_hash = writeCachedChecksum(destinationpath)
         if xattr_hash == expected_hash:
-            #File is already current, no change.
+            # File is already current, no change.
             return False
         elif munkicommon.pref(
                 'PackageVerificationMode').lower() in ['hash_strict', 'hash']:
@@ -285,9 +291,9 @@ def getResourceIfChangedAtomically(url,
         munkicommon.log('Cached payload does not match hash in catalog, '
                         'will check if changed and redownload: %s'
                         % destinationpath)
-        #continue with normal if-modified-since/etag update methods.
+        # continue with normal if-modified-since/etag update methods.
 
-    if follow_redirects != True:
+    if not follow_redirects:
         # If we haven't explicitly said to follow redirect,
         # the preference decides
         follow_redirects = munkicommon.pref('FollowHTTPRedirects')
@@ -352,7 +358,7 @@ def getFileIfChangedAtomically(path, destinationpath):
     try:
         if st_dst:
             os.unlink(tmp_destinationpath)
-    except OSError, err:
+    except OSError as err:
         if err.args[0] == errno.ENOENT:
             pass  # OK
         else:
@@ -362,13 +368,13 @@ def getFileIfChangedAtomically(path, destinationpath):
     # copy from source to temporary destination
     try:
         shutil.copy2(path, tmp_destinationpath)
-    except IOError, err:
+    except IOError as err:
         raise FileCopyError('Copy IOError: %s' % str(err))
 
     # rename temp destination to final destination
     try:
         os.rename(tmp_destinationpath, destinationpath)
-    except OSError, err:
+    except OSError as err:
         raise FileCopyError('Renaming %s: %s' % (destinationpath, str(err)))
 
     return True
@@ -404,11 +410,11 @@ def getHTTPfileIfChangedAtomically(url, destinationpath,
                          resume=resume,
                          follow_redirects=follow_redirects)
 
-    except GurlError, err:
+    except GurlError as err:
         err = 'Error %s: %s' % tuple(err)
         raise GurlDownloadError(err)
 
-    except HTTPError, err:
+    except HTTPError as err:
         err = 'HTTP result %s: %s' % tuple(err)
         raise GurlDownloadError(err)
 
@@ -509,4 +515,3 @@ def verifySoftwarePackageIntegrity(file_path, item_hash, always_hash=False):
             'illegal value: %s' % munkicommon.pref('PackageVerificationMode'))
 
     return (False, chash)
-

@@ -47,6 +47,7 @@ UPDATECHECKLAUNCHFILE = \
 INSTALLWITHOUTLOGOUTFILE = \
     "/private/tmp/.com.googlecode.munki.managedinstall.launchd"
 
+
 def call(cmd):
     '''Convenience function; works around an issue with subprocess.call
     in PyObjC in Snow Leopard'''
@@ -76,6 +77,7 @@ def restartNow():
 
 BUNDLE_ID = u'ManagedInstalls'
 
+
 def reload_prefs():
     """Uses CFPreferencesAppSynchronize(BUNDLE_ID)
     to make sure we have the latest prefs. Call this
@@ -84,6 +86,7 @@ def reload_prefs():
     CFPreferencesAppSynchronize(BUNDLE_ID)
 
 DEFAULT_GUI_CACHE_AGE_SECS = 600
+
 
 def pref(pref_name):
     """Return a preference. Since this uses CFPreferencesCopyAppValue,
@@ -102,15 +105,16 @@ def pref(pref_name):
         'CheckResultsCacheSeconds': DEFAULT_GUI_CACHE_AGE_SECS,
     }
     pref_value = CFPreferencesCopyAppValue(pref_name, BUNDLE_ID)
-    if pref_value == None:
+    if pref_value is None:
         pref_value = default_prefs.get(pref_name)
-    #if type(pref_value).__name__ in ['__NSCFDate', '__NSDate', '__CFDate']:
+    # if type(pref_value).__name__ in ['__NSCFDate', '__NSDate', '__CFDate']:
         # convert NSDate/CFDates to strings
         #pref_value = str(pref_value)
     return pref_value
 
 
 WRITEABLE_SELF_SERVICE_MANIFEST_PATH = "/Users/Shared/.SelfServeManifest"
+
 
 def readSelfServiceManifest():
     '''Read the SelfServeManifest if it exists'''
@@ -246,6 +250,7 @@ class BadDateError(Exception):
     '''Exception when transforming dates'''
     pass
 
+
 def discardTimeZoneFromDate(the_date):
     """Input: NSDate object
     Output: NSDate object with same date and time as the UTC.
@@ -326,7 +331,7 @@ def humanReadable(kbytes):
         if kbytes > limit:
             continue
         else:
-            return str(round(kbytes/float(limit/2**10), 1)) + suffix
+            return str(round(kbytes / float(limit / 2**10), 1)) + suffix
 
 
 def trimVersionString(version_string):
@@ -338,7 +343,7 @@ def trimVersionString(version_string):
       10.0.0-abc1 -> 10.0.0-abc1
       10.0.0-abc1.0 -> 10.0.0-abc1
     """
-    if version_string == None or version_string == '':
+    if version_string is None or version_string == '':
         return ''
     version_parts = version_string.split('.')
     # strip off all trailing 0's in the version, while over 2 parts.
@@ -521,7 +526,7 @@ def getRunningBlockingApps(appnames):
             # search by filename
             matching_items = [
                 item for item in proc_list
-                if '/'+ appname + '/Contents/MacOS/' in item['pathname']]
+                if '/' + appname + '/Contents/MacOS/' in item['pathname']]
         else:
             # check executable name
             matching_items = [item for item in proc_list

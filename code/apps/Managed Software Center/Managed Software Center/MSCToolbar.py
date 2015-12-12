@@ -22,17 +22,18 @@ class MSCToolbarButton(NSButton):
                 if v != self and v.hitTest_(aPoint) != nil:
                     view = self
                     break
-        
-        return view
 
+        return view
 
 
 class MSCToolbarButtonCell(NSButtonCell):
     '''Subclass of NSButtonCell which properly works inside of a toolbar item
         to allow clicking on the label.'''
 
-    def _hitTestForTrackMouseEvent_inRect_ofView_(self, theEvent, rect, controlView):
-        aPoint = controlView.superview().convertPoint_fromView_(theEvent.locationInWindow(), nil)
+    def _hitTestForTrackMouseEvent_inRect_ofView_(
+            self, theEvent, rect, controlView):
+        aPoint = controlView.superview().convertPoint_fromView_(
+            theEvent.locationInWindow(), nil)
         hit = NO
 
         for v in controlView.superview().subviews():
@@ -41,5 +42,3 @@ class MSCToolbarButtonCell(NSButtonCell):
                 break
 
         return hit
-
-

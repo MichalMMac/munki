@@ -26,14 +26,15 @@ from Foundation import NSString, NSLocalizedString, NSUTF8StringEncoding
 def quote(a_string):
     '''Replacement for urllib.quote that handles Unicode strings'''
     return str(NSString.stringWithString_(
-                   a_string).stringByAddingPercentEscapesUsingEncoding_(
-                       NSUTF8StringEncoding))
+        a_string).stringByAddingPercentEscapesUsingEncoding_(
+        NSUTF8StringEncoding))
+
 
 def unquote(a_string):
     '''Replacement for urllib.unquote that handles Unicode strings'''
     return str(NSString.stringWithString_(
-                   a_string).stringByReplacingPercentEscapesUsingEncoding_(
-                       NSUTF8StringEncoding))
+        a_string).stringByReplacingPercentEscapesUsingEncoding_(
+        NSUTF8StringEncoding))
 
 
 def get_template(template_name, raw=False):
@@ -56,6 +57,7 @@ def get_template(template_name, raw=False):
             except (IOError, OSError):
                 return None
     return None
+
 
 def build_page(filename):
     '''Dispatch request to build a page to the appropriate function'''
@@ -89,7 +91,7 @@ def write_page(page_name, html):
         f = open(html_file, 'w')
         f.write(html.encode('utf-8'))
         f.close()
-    except (OSError, IOError), err:
+    except (OSError, IOError) as err:
         msclog.debug_log('write_page error: %s', str(err))
         raise
 
@@ -144,7 +146,8 @@ def escapeAndQuoteCommonFields(item):
 def addGeneralLabels(page):
     '''adds localized labels for Software, Categories, My Items and Updates to html pages'''
     page['SoftwareLabel'] = NSLocalizedString(u"Software", u"Software label")
-    page['CategoriesLabel'] = NSLocalizedString(u"Categories", u"Categories label")
+    page['CategoriesLabel'] = NSLocalizedString(
+        u"Categories", u"Categories label")
     page['MyItemsLabel'] = NSLocalizedString(u"My Items", u"My Items label")
     page['UpdatesLabel'] = NSLocalizedString(u"Updates", u"Updates label")
 
@@ -152,32 +155,32 @@ def addGeneralLabels(page):
 def addDetailSidebarLabels(page):
     '''adds localized labels for the detail view sidebars'''
     page['informationLabel'] = NSLocalizedString(
-                                    u"Information",
-                                    u"Sidebar Information label")
+        u"Information",
+        u"Sidebar Information label")
     page['categoryLabel'] = NSLocalizedString(
-                                    u"Category:",
-                                    u"Sidebar Category label")
+        u"Category:",
+        u"Sidebar Category label")
     page['versionLabel'] = NSLocalizedString(
-                                    u"Version:",
-                                    u"Sidebar Version label")
+        u"Version:",
+        u"Sidebar Version label")
     page['sizeLabel'] = NSLocalizedString(
-                                    u"Size:",
-                                    u"Sidebar Size label")
+        u"Size:",
+        u"Sidebar Size label")
     page['developerLabel'] = NSLocalizedString(
-                                    u"Developer:",
-                                    u"Sidebar Developer label")
+        u"Developer:",
+        u"Sidebar Developer label")
     page['statusLabel'] = NSLocalizedString(
-                                    u"Status:", u"Sidebar Status label")
+        u"Status:", u"Sidebar Status label")
     page['moreByDeveloperLabel'] = NSLocalizedString(
-                                    u"More by %s",
-                                    u"Sidebar More By Developer label")
+        u"More by %s",
+        u"Sidebar More By Developer label")
     page['moreInCategoryLabel'] = NSLocalizedString(
-                                    u"More in %s",
-                                    u"Sidebar More In Category label")
+        u"More in %s",
+        u"Sidebar More In Category label")
     page['typeLabel'] = NSLocalizedString(
-                                    u"Type:", u"Sidebar Type label")
+        u"Type:", u"Sidebar Type label")
     page['dueLabel'] = NSLocalizedString(
-                                    u"Due:", u"Sidebar Due label")
+        u"Due:", u"Sidebar Due label")
 
 
 def build_item_not_found_page(page_name):
@@ -188,7 +191,11 @@ def build_item_not_found_page(page_name):
     page['item_not_found_message'] = NSLocalizedString(
         u"Cannot display the requested item.", u"Item Not Found message")
     footer = get_template('footer_template.html', raw=True)
-    generate_page(page_name, 'page_not_found_template.html', page, footer=footer)
+    generate_page(
+        page_name,
+        'page_not_found_template.html',
+        page,
+        footer=footer)
 
 
 def build_detail_page(item_name):
@@ -215,13 +222,18 @@ def build_detail_page(item_name):
                                     and a.get('status') != 'installed']
                 if more_in_category:
                     page['hide_more_in_category'] = u''
-                    page['moreInCategoryLabel'] = page['moreInCategoryLabel'] % page['category']
+                    page['moreInCategoryLabel'] = page[
+                        'moreInCategoryLabel'] % page['category']
                     shuffle(more_in_category)
-                    more_template = get_template('detail_more_items_template.html')
+                    more_template = get_template(
+                        'detail_more_items_template.html')
                     for more_item in more_in_category[:4]:
-                        more_item['display_name_escaped'] = escape_html(more_item['display_name'])
-                        more_item['second_line'] = more_item.get('developer', '')
-                        more_in_category_html += more_template.safe_substitute(more_item)
+                        more_item['display_name_escaped'] = escape_html(
+                            more_item['display_name'])
+                        more_item['second_line'] = more_item.get(
+                            'developer', '')
+                        more_in_category_html += more_template.safe_substitute(
+                            more_item)
             page['more_in_category'] = more_in_category_html
             # make "More by DeveloperFoo" list
             page['hide_more_by_developer'] = u'hidden'
@@ -229,7 +241,8 @@ def build_detail_page(item_name):
             more_by_developer = []
             if item.get('developer'):
                 developer = item['developer']
-                page['developer_link'] = u'developer-%s.html' % quote(developer)
+                page[
+                    'developer_link'] = u'developer-%s.html' % quote(developer)
                 more_by_developer = [a for a in items
                                      if a.get('developer') == developer
                                      and a != item
@@ -241,14 +254,20 @@ def build_detail_page(item_name):
                         page['moreByDeveloperLabel'] % developer)
                     shuffle(more_by_developer)
                     more_template = get_template(
-                                        'detail_more_items_template.html')
+                        'detail_more_items_template.html')
                     for more_item in more_by_developer[:4]:
                         escapeAndQuoteCommonFields(more_item)
-                        more_item['second_line'] = more_item.get('category', '')
-                        more_by_developer_html += more_template.safe_substitute(more_item)
+                        more_item['second_line'] = more_item.get(
+                            'category', '')
+                        more_by_developer_html += more_template.safe_substitute(
+                            more_item)
             page['more_by_developer'] = more_by_developer_html
             footer = get_template('footer_template.html', raw=True)
-            generate_page(page_name, 'detail_template.html', page, footer=footer)
+            generate_page(
+                page_name,
+                'detail_template.html',
+                page,
+                footer=footer)
             return
     msclog.debug_log('No detail found for %s' % item_name)
     build_item_not_found_page(page_name)
@@ -278,10 +297,11 @@ def build_list_page(category=None, developer=None, filter=None):
             category_list.append(item['category'])
 
     item_html = build_list_page_items_html(
-                            category=category, developer=developer, filter=filter)
+        category=category, developer=developer, filter=filter)
 
     # make HTML for Categories pop-up menu
-    all_categories_label = NSLocalizedString(u"All Categories", u"AllCategoriesLabel")
+    all_categories_label = NSLocalizedString(
+        u"All Categories", u"AllCategoriesLabel")
     if category:
         categories_html = u'<option>%s</option>\n' % all_categories_label
     else:
@@ -296,8 +316,9 @@ def build_list_page(category=None, developer=None, filter=None):
     categories_html_list = ''
     # make HTML for list of categories
     for item in sorted(category_list):
-        categories_html_list += (u'<li class="link"><a href="category-%s.html">%s</a></li>\n'
-                                 % (quote(item), item))
+        categories_html_list += (
+            u'<li class="link"><a href="category-%s.html">%s</a></li>\n' %
+            (quote(item), item))
 
     page = {}
     page['list_items'] = item_html
@@ -341,7 +362,8 @@ def build_list_page_items_html(category=None, developer=None, filter=None):
         item_template = get_template('list_item_template.html')
         for item in sorted(items, key=itemgetter('display_name_lower')):
             escapeAndQuoteCommonFields(item)
-            item['category_and_developer_escaped'] = escape_html(item['category_and_developer'])
+            item['category_and_developer_escaped'] = escape_html(
+                item['category_and_developer'])
             item_html += item_template.safe_substitute(item)
         # pad with extra empty items so we have a multiple of 3
         if len(items) % 3:
@@ -373,11 +395,11 @@ def build_list_page_items_html(category=None, developer=None, filter=None):
                 u"No Developer Results secondary text")
         else:
             alert['primary_status_text'] = NSLocalizedString(
-               u"There are no available software items.",
-               u"No Items primary text")
+                u"There are no available software items.",
+                u"No Items primary text")
             alert['secondary_status_text'] = NSLocalizedString(
-               u"Try again later.",
-               u"No Items secondary text")
+                u"Try again later.",
+                u"No Items secondary text")
         alert['hide_progress_bar'] = u'hidden'
         alert['progress_bar_value'] = u''
         item_html = status_results_template.safe_substitute(alert)
@@ -395,8 +417,9 @@ def build_categories_page():
             category_list.append(item['category'])
 
     item_html = build_category_items_html()
-    
-    all_categories_label = NSLocalizedString(u"All Categories", u"AllCategoriesLabel")
+
+    all_categories_label = NSLocalizedString(
+        u"All Categories", u"AllCategoriesLabel")
     categories_html = u'<option selected>%s</option>\n' % all_categories_label
     for item in sorted(category_list):
         categories_html += u'<option>%s</option>\n' % item
@@ -405,9 +428,15 @@ def build_categories_page():
     page['list_items'] = item_html
     page['category_items'] = categories_html
     page['header_text'] = header
-    
+
     footer = get_template('footer_template.html', raw=True)
-    generate_page(page_name, 'list_template.html', page, showcase=u'', sidebar=u'', footer=footer)
+    generate_page(
+        page_name,
+        'list_template.html',
+        page,
+        showcase=u'',
+        sidebar=u'',
+        footer=footer)
 
 
 def build_category_items_html():
@@ -424,24 +453,29 @@ def build_category_items_html():
         for category in sorted(category_list):
             category_data = {}
             category_data['category_name_escaped'] = escape_html(category)
-            category_data['category_link'] = u'category-%s.html' % quote(category)
-            category_items = [item for item in all_items if item.get('category') == category]
+            category_data[
+                'category_link'] = u'category-%s.html' % quote(category)
+            category_items = [
+                item for item in all_items if item.get('category') == category]
             shuffle(category_items)
             category_data['item1_icon'] = category_items[0]['icon']
             category_data['item1_display_name_escaped'] = escape_html(
-                 category_items[0]['display_name'])
-            category_data['item1_detail_link'] = category_items[0]['detail_link']
+                category_items[0]['display_name'])
+            category_data['item1_detail_link'] = category_items[
+                0]['detail_link']
             if len(category_items) > 1:
                 category_data['item2_display_name_escaped'] = escape_html(
                     category_items[1]['display_name'])
-                category_data['item2_detail_link'] = category_items[1]['detail_link']
+                category_data['item2_detail_link'] = category_items[
+                    1]['detail_link']
             else:
                 category_data['item2_display_name_escaped'] = u''
                 category_data['item2_detail_link'] = u'#'
             if len(category_items) > 2:
                 category_data['item3_display_name_escaped'] = escape_html(
                     category_items[2]['display_name'])
-                category_data['item3_detail_link'] = category_items[2]['detail_link']
+                category_data['item3_detail_link'] = category_items[
+                    2]['detail_link']
             else:
                 category_data['item3_display_name_escaped'] = u''
                 category_data['item3_detail_link'] = u'#'
@@ -477,7 +511,7 @@ def build_myitems_page():
     page['my_items_header_label'] = NSLocalizedString(
         u"My Items", u"My Items label")
     page['myitems_rows'] = build_myitems_rows()
-    
+
     footer = get_template('footer_template.html', raw=True)
     generate_page(page_name, 'myitems_template.html', page, footer=footer)
 
@@ -499,8 +533,8 @@ def build_myitems_rows():
             u"No Installed Software primary text")
         alert['secondary_status_text'] = (
             u'<a href="category-all.html">%s</a>' % NSLocalizedString(
-                                                        u"Select software to install.",
-                                                        u"No Installed Software secondary text"))
+                u"Select software to install.",
+                u"No Installed Software secondary text"))
         alert['hide_progress_bar'] = u'hidden'
         myitems_rows = status_results_template.safe_substitute(alert)
     return myitems_rows
@@ -509,7 +543,7 @@ def build_myitems_rows():
 def build_updates_page():
     '''available/pending updates'''
     page_name = u'updates.html'
-    
+
     # need to consolidate/centralize this flag. Accessing it this way is ugly.
     if NSApp.delegate().mainWindowController._update_in_progress:
         return build_update_status_page()
@@ -525,7 +559,7 @@ def build_updates_page():
     page['hide_progress_spinner'] = u'hidden'
     page['hide_other_updates'] = u'hidden'
     page['install_all_button_classes'] = u''
-    
+
     item_template = get_template('update_row_template.html')
 
     if item_list:
@@ -536,10 +570,10 @@ def build_updates_page():
         status_results_template = get_template('status_results_template.html')
         alert = {}
         alert['primary_status_text'] = NSLocalizedString(
-             u"Your software is up to date.", u"No Pending Updates primary text")
+            u"Your software is up to date.", u"No Pending Updates primary text")
         alert['secondary_status_text'] = NSLocalizedString(
-             u"There is no new software for your computer at this time.",
-             u"No Pending Updates secondary text")
+            u"There is no new software for your computer at this time.",
+            u"No Pending Updates secondary text")
         alert['hide_progress_bar'] = u'hidden'
         alert['progress_bar_value'] = u''
         page['update_rows'] = status_results_template.safe_substitute(alert)
@@ -559,7 +593,7 @@ def build_updates_page():
         for item in other_updates:
             escapeAndQuoteCommonFields(item)
             page['other_update_rows'] += item_template.safe_substitute(item)
-    
+
     footer = get_template('footer_template.html', raw=True)
     generate_page(page_name, 'updates_template.html', page, footer=footer)
 
@@ -569,7 +603,7 @@ def build_update_status_page():
     page_name = u'updates.html'
     item_list = []
     other_updates = []
-    
+
     status_title_default = NSLocalizedString(u"Checking for updates...",
                                              u"Checking For Updates message")
     page = {}
@@ -578,23 +612,26 @@ def build_update_status_page():
     page['hide_other_updates'] = u'hidden'
     page['other_updates_header_message'] = u''
     page['other_update_rows'] = u''
-    
+
     # don't like this bit as it ties us to a different object
     status_controller = NSApp.delegate().statusController
     status_results_template = get_template('status_results_template.html')
     alert = {}
     alert['primary_status_text'] = (
-        status_controller._status_message
-        or NSLocalizedString(u"Update in progress.", u"Update In Progress primary text"))
-    alert['secondary_status_text'] = (status_controller._status_detail or '&nbsp;')
+        status_controller._status_message or NSLocalizedString(
+            u"Update in progress.",
+            u"Update In Progress primary text"))
+    alert['secondary_status_text'] = (
+        status_controller._status_detail or '&nbsp;')
     alert['hide_progress_bar'] = u''
     if status_controller._status_percent < 0:
         alert['progress_bar_attributes'] = u'class="indeterminate"'
     else:
-        alert['progress_bar_attributes'] = (u'style="width: %s%%"'
-                                            % status_controller._status_percent)
+        alert['progress_bar_attributes'] = (
+            u'style="width: %s%%"' %
+            status_controller._status_percent)
     page['update_rows'] = status_results_template.safe_substitute(alert)
-    
+
     install_all_button_classes = []
     if status_controller._status_stopBtnHidden:
         install_all_button_classes.append(u'hidden')
@@ -603,8 +640,10 @@ def build_update_status_page():
     page['install_all_button_classes'] = u' '.join(install_all_button_classes)
 
     # don't like this bit as it ties us yet another object
-    page['update_count'] = NSApp.delegate().mainWindowController._status_title or status_title_default
-    page['install_btn_label'] = NSLocalizedString(u"Cancel", u"Cancel button title/short action text")
+    page['update_count'] = NSApp.delegate(
+    ).mainWindowController._status_title or status_title_default
+    page['install_btn_label'] = NSLocalizedString(
+        u"Cancel", u"Cancel button title/short action text")
     page['warning_text'] = u''
 
     footer = get_template('footer_template.html', raw=True)
@@ -615,11 +654,14 @@ def getRestartActionForUpdateList(update_list):
     '''Returns a localized overall restart action message for the list of updates'''
     if not update_list:
         return ''
-    if [item for item in update_list if 'Restart' in item.get('RestartAction', '')]:
+    if [item for item in update_list if 'Restart' in item.get(
+            'RestartAction', '')]:
         # found at least one item containing 'Restart' in its RestartAction
-        return NSLocalizedString(u"Restart Required", u"Restart Required title")
-    if ([item for item in update_list if 'Logout' in item.get('RestartAction', '')]
-        or munki.installRequiresLogout()):
+        return NSLocalizedString(
+            u"Restart Required",
+            u"Restart Required title")
+    if ([item for item in update_list if 'Logout' in item.get(
+            'RestartAction', '')] or munki.installRequiresLogout()):
         # found at least one item containing 'Logout' in its RestartAction
         return NSLocalizedString(u"Logout Required", u"Logout Required title")
     else:
@@ -635,8 +677,8 @@ def get_warning_text():
     if forced_install_date:
         date_str = munki.stringFromDate(forced_install_date)
         forced_date_text = NSLocalizedString(
-                            u"One or more items must be installed by %s",
-                            u"Forced Install Date summary")
+            u"One or more items must be installed by %s",
+            u"Forced Install Date summary")
         warning_text = forced_date_text % date_str
     restart_text = getRestartActionForUpdateList(item_list)
     if restart_text:
@@ -653,7 +695,8 @@ def build_updatedetail_page(identifier):
     page_name = u'updatedetail-%s.html' % identifier
     name, sep, version = identifier.partition('--version-')
     for item in items:
-        if item['name'] == name and item.get('version_to_install', '') == version:
+        if item['name'] == name and item.get(
+                'version_to_install', '') == version:
             page = MunkiItems.UpdateItem(item)
             escapeAndQuoteCommonFields(page)
             addDetailSidebarLabels(page)
@@ -661,14 +704,16 @@ def build_updatedetail_page(identifier):
             if force_install_after_date:
                 try:
                     local_date = munki.discardTimeZoneFromDate(
-                                                force_install_after_date)
+                        force_install_after_date)
                     date_str = munki.shortRelativeStringFromDate(
-                                                local_date)
+                        local_date)
                     page['dueLabel'] += u' '
                     page['short_due_date'] = date_str
                 except munki.BadDateError:
                     # some issue with the stored date
-                    msclog.debug_log('Problem with force_install_after_date for %s' % identifier)
+                    msclog.debug_log(
+                        'Problem with force_install_after_date for %s' %
+                        identifier)
                     page['dueLabel'] = u''
                     page['short_due_date'] = u''
             else:
@@ -676,9 +721,12 @@ def build_updatedetail_page(identifier):
                 page['short_due_date'] = u''
 
             footer = get_template('footer_template.html', raw=True)
-            generate_page(page_name, 'updatedetail_template.html', page, footer=footer)
+            generate_page(
+                page_name,
+                'updatedetail_template.html',
+                page,
+                footer=footer)
             return
     # if we get here we didn't find any item matching identifier
     msclog.debug_log('No update detail found for %s' % identifier)
     build_item_not_found_page(page_name)
-

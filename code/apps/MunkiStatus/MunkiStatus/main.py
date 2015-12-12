@@ -16,14 +16,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#import modules required by application
+# import modules required by application
 import objc
 import Foundation
 import AppKit
 
 from PyObjCTools import AppHelper
 
-# import modules containing classes required to start application and load MainMenu.nib
+# import modules containing classes required to start application and load
+# MainMenu.nib
 import MSUAppDelegate
 import MSUStatusWindowController
 

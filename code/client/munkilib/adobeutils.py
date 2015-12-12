@@ -245,7 +245,8 @@ def getPayloadInfo(dirpath):
                     'Property')
                 for prop in properties:
                     if 'name' in prop.attributes.keys():
-                        propname = prop.attributes['name'].value.encode('UTF-8')
+                        propname = prop.attributes[
+                            'name'].value.encode('UTF-8')
                         propvalue = ''
                         for node in prop.childNodes:
                             propvalue += node.nodeValue
@@ -265,7 +266,7 @@ def getPayloadInfo(dirpath):
                     installsize = ''
                     for node in totalsizes[0].childNodes:
                         installsize += node.nodeValue
-                    payloadinfo['installed_size'] = int(installsize)/1024
+                    payloadinfo['installed_size'] = int(installsize) / 1024
 
     return payloadinfo
 
@@ -319,7 +320,7 @@ def getAdobeSetupInfo(installroot):
         for (path, dummy_dirs, dummy_files) in os.walk(installroot):
             if path.endswith("/extensions"):
                 for item in munkicommon.listdir(path):
-                    #skip LanguagePacks
+                    # skip LanguagePacks
                     if item.find("LanguagePack") == -1:
                         itempath = os.path.join(path, item)
                         payloadinfo = getPayloadInfo(itempath)
@@ -468,7 +469,7 @@ def getPercent(current, maximum):
     elif current == maximum:
         percentdone = 100
     else:
-        percentdone = int(float(current)/float(maximum)*100)
+        percentdone = int(float(current) / float(maximum) * 100)
     return percentdone
 
 
@@ -518,6 +519,8 @@ def findAdobeDeploymentManager(dirpath):
 
 
 secondsToLive = {}
+
+
 def killStupidProcesses():
     '''A nasty bit of hackery to get Adobe CS5 AAMEE packages to install
     when at the loginwindow.'''
@@ -533,7 +536,7 @@ def killStupidProcesses():
     for procname in stupid_processes:
         pid = utils.getPIDforProcessName(procname)
         if pid:
-            if not pid in secondsToLive:
+            if pid not in secondsToLive:
                 secondsToLive[pid] = 30
             else:
                 secondsToLive[pid] = secondsToLive[pid] - 1
@@ -611,7 +614,7 @@ def runAdobeInstallTool(
     # run of tool completed
     retcode = proc.poll()
 
-    #check output for errors
+    # check output for errors
     output = proc.stdout.readlines()
     for line in output:
         line = line.rstrip("\n")
@@ -931,9 +934,12 @@ def runAdobeCS5PatchInstaller(dmgpath, copylocal=False, payloads=None):
             install_cmd = [patchinstaller,
                            '--mode=silent',
                            '--skipProcessCheck=1']
-            retcode = runAdobeInstallTool(install_cmd,
-                                          number_of_payloads, payloads=payloads,
-                                          kind='CS5', operation='install')
+            retcode = runAdobeInstallTool(
+                install_cmd,
+                number_of_payloads,
+                payloads=payloads,
+                kind='CS5',
+                operation='install')
         else:
             munkicommon.display_error(
                 "%s doesn't appear to contain AdobePatchInstaller.app.",
@@ -1023,7 +1029,7 @@ def updateAcrobatPro(dmgpath):
     if munkicommon.munkistatusoutput:
         munkistatus.percent(-1)
 
-    #first mount the dmg
+    # first mount the dmg
     munkicommon.display_status_minor(
         'Mounting disk image %s' % os.path.basename(dmgpath))
     mountpoints = mountAdobeDmg(dmgpath)
@@ -1154,7 +1160,7 @@ def getAdobeInstallInfo(installdir):
         optionXMLfile = os.path.join(installdir, "optionXML.xml")
         if os.path.exists(optionXMLfile):
             adobeInstallInfo['uninstallxml'] = \
-                                            getCS5uninstallXML(optionXMLfile)
+                getCS5uninstallXML(optionXMLfile)
 
     return adobeInstallInfo
 
@@ -1401,7 +1407,8 @@ def doAdobeRemoval(item):
 
     elif uninstallmethod == "AdobeUberUninstaller":
         # CS4 uninstall
-        pkgname = item.get("adobe_package_name") or item.get("package_path", "")
+        pkgname = item.get("adobe_package_name") or item.get(
+            "package_path", "")
         retcode = runAdobeUberTool(
             itempath, pkgname, uninstalling=True, payloads=payloads)
 
@@ -1435,7 +1442,8 @@ def doAdobeInstall(item):
         retcode = runAdobeSetup(itempath, payloads=payloads)
     elif installer_type == "AdobeUberInstaller":
         # Adobe CS4 installer
-        pkgname = item.get("adobe_package_name") or item.get("package_path", "")
+        pkgname = item.get("adobe_package_name") or item.get(
+            "package_path", "")
         retcode = runAdobeUberTool(itempath, pkgname, payloads=payloads)
     elif installer_type == "AdobeAcrobatUpdater":
         # Acrobat Pro 9 updater
@@ -1460,4 +1468,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

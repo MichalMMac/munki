@@ -55,13 +55,16 @@ libIOKit.IOPMAssertionCreateWithName.argtypes = [
     c_void_p, c_uint32, c_void_p, POINTER(c_uint32)]
 libIOKit.IOPMAssertionRelease.argtypes = [c_uint32]
 
+
 def CFSTR(py_string):
     '''Returns a CFString given a Python string'''
     return CFStringCreateWithCString(None, py_string, kCFStringEncodingASCII)
 
+
 def raw_ptr(pyobjc_string):
     '''Returns a pointer to a CFString'''
     return pyobjc_id(pyobjc_string.nsstring())
+
 
 def IOPMAssertionCreateWithName(assert_name, assert_level, assert_msg):
     '''Creaes a PowerManager assertion'''
@@ -192,7 +195,7 @@ def install(pkgpath, choicesXMLpath=None, suppressBundleRelocation=False,
     try:
         job = launchd.Job(cmd, environment_vars=env_vars)
         job.start()
-    except launchd.LaunchdJobException, err:
+    except launchd.LaunchdJobException as err:
         munkicommon.display_error(
             'Error with launchd job (%s): %s', cmd, str(err))
         munkicommon.display_error('Can\'t run installer.')
@@ -270,11 +273,12 @@ def install(pkgpath, choicesXMLpath=None, suppressBundleRelocation=False,
         # append stdout to our installer output
         installeroutput.extend(job.stderr.read().splitlines())
         munkicommon.display_status_minor(
-            "Install of %s failed with return code %s" % (packagename, retcode))
-        munkicommon.display_error("-"*78)
+            "Install of %s failed with return code %s" %
+            (packagename, retcode))
+        munkicommon.display_error("-" * 78)
         for line in installeroutput:
             munkicommon.display_error(line.rstrip("\n"))
-        munkicommon.display_error("-"*78)
+        munkicommon.display_error("-" * 78)
         restartneeded = False
     elif retcode == 0:
         munkicommon.log("Install of %s was successful." % packagename)
@@ -325,8 +329,8 @@ def installall(dirpath, choicesXMLpath=None, suppressBundleRelocation=False,
             munkicommon.unmountdmg(mountpoints[0])
 
         if munkicommon.hasValidInstallerItemExt(item):
-            (retcode, needsrestart) = install(
-                itempath, choicesXMLpath, suppressBundleRelocation, environment)
+            (retcode, needsrestart) = install(itempath,
+                                              choicesXMLpath, suppressBundleRelocation, environment)
             if needsrestart:
                 restartflag = True
             if retcode:
@@ -435,7 +439,8 @@ def copyItemsFromMountpoint(mountpoint, itemlist):
                 os.makedirs(destpath, mode=parent_mode)
             except IOError:
                 munkicommon.display_error(
-                    "There was an IO error in creating the path %s!" % destpath)
+                    "There was an IO error in creating the path %s!" %
+                    destpath)
                 return -1
             except BaseException:
                 munkicommon.display_error(
@@ -446,7 +451,6 @@ def copyItemsFromMountpoint(mountpoint, itemlist):
             # chown each new dir
             for new_path in new_paths:
                 os.chown(new_path, parent_uid, parent_gid)
-
 
         # setup full destination path using 'destination_item', if supplied
         if dest_itemname:
@@ -581,7 +585,8 @@ def removeCopiedItems(itemlist):
         else:
             # path_to_remove doesn't exist
             # note it, but not an error
-            munkicommon.display_detail("Path %s doesn't exist.", path_to_remove)
+            munkicommon.display_detail(
+                "Path %s doesn't exist.", path_to_remove)
 
     return retcode
 
@@ -671,8 +676,9 @@ def installWithInfo(
             # need to skip this item too
             skipped_installs.append(item)
             if only_unattended:
-                format_str = ('Skipping unattended install of %s because these '
-                              'prerequisites were skipped: %s')
+                format_str = (
+                    'Skipping unattended install of %s because these '
+                    'prerequisites were skipped: %s')
             else:
                 format_str = ('Skipping install of %s because these '
                               'prerequisites were not installed: %s')
@@ -731,7 +737,7 @@ def installWithInfo(
                 identifier = item.get('PayloadIdentifier')
                 if not profiles.install_profile(itempath, identifier):
                     retcode = -1
-            elif installer_type == "nopkg": # Packageless install
+            elif installer_type == "nopkg":  # Packageless install
                 if (item.get("RestartAction") == "RequireRestart" or
                         item.get("RestartAction") == "RecommendRestart"):
                     restartflag = True
@@ -773,7 +779,7 @@ def installWithInfo(
                         munkicommon.unmountdmg(mountpoints[0])
                         return restartflag, skipped_installs
 
-                    retcode = -99 # in case we find nothing to install
+                    retcode = -99  # in case we find nothing to install
                     needtorestart = False
                     if munkicommon.hasValidInstallerItemExt(
                             item.get('package_path', '')):
@@ -818,7 +824,7 @@ def installWithInfo(
                         % itempath)
                     retcode = -99
 
-        if retcode == 0  and 'postinstall_script' in item:
+        if retcode == 0 and 'postinstall_script' in item:
             # only run embedded postinstall script if the install did not
             # return a failure code
             retcode = munkicommon.runEmbeddedScript(
@@ -1000,7 +1006,8 @@ def processRemovals(removallist, only_unattended=False):
         retcode = 0
         # run preuninstall_script if it exists
         if 'preuninstall_script' in item:
-            retcode = munkicommon.runEmbeddedScript('preuninstall_script', item)
+            retcode = munkicommon.runEmbeddedScript(
+                'preuninstall_script', item)
 
         if retcode == 0 and 'uninstall_method' in item:
             uninstallmethod = item['uninstall_method']
@@ -1062,7 +1069,7 @@ def processRemovals(removallist, only_unattended=False):
                     restartFlag = True
 
             elif os.path.exists(uninstallmethod) and \
-                 os.access(uninstallmethod, os.X_OK):
+                    os.access(uninstallmethod, os.X_OK):
                 # it's a script or program to uninstall
                 retcode = munkicommon.runScript(
                     display_name, uninstallmethod, 'uninstall script')
@@ -1142,7 +1149,7 @@ def removeItemFromSelfServeSection(itemname, section):
         return
     try:
         plist = FoundationPlist.readPlist(selfservemanifest)
-    except FoundationPlist.FoundationPlistException, err:
+    except FoundationPlist.FoundationPlistException as err:
         # SelfServeManifest is broken, bail
         munkicommon.display_debug1(
             "Error reading %s: %s", selfservemanifest, err)
@@ -1155,7 +1162,7 @@ def removeItemFromSelfServeSection(itemname, section):
         ]
         try:
             FoundationPlist.writePlist(plist, selfservemanifest)
-        except FoundationPlist.FoundationPlistException, err:
+        except FoundationPlist.FoundationPlistException as err:
             munkicommon.display_debug1(
                 "Error writing %s: %s", selfservemanifest, err)
 

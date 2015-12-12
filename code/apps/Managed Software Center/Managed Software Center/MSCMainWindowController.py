@@ -43,6 +43,7 @@ from WebKit import *
 # Disable PyLint complaining about 'invalid' camelCase names
 # pylint: disable=C0103
 
+
 class MSCMainWindowController(NSWindowController):
 
     _alertedUserToOutstandingUpdates = False
@@ -126,11 +127,9 @@ class MSCMainWindowController(NSWindowController):
                 u"There are pending updates for this computer.",
                 u"Pending Updates alert detail text")
         alert = NSAlert.alertWithMessageText_defaultButton_alternateButton_otherButton_informativeTextWithFormat_(
-            alertTitle,
-            NSLocalizedString(u"Quit", u"Quit button title"),
-            nil,
-            NSLocalizedString(u"Update now", u"Update Now button title"),
-            u"%@", alertDetail)
+            alertTitle, NSLocalizedString(
+                u"Quit", u"Quit button title"), nil, NSLocalizedString(
+                u"Update now", u"Update Now button title"), u"%@", alertDetail)
         alert.beginSheetModalForWindow_modalDelegate_didEndSelector_contextInfo_(
             self.window(), self,
             self.updateAlertDidEnd_returnCode_contextInfo_, objc.nil)
@@ -152,7 +151,7 @@ class MSCMainWindowController(NSWindowController):
             self.loadUpdatesPage_(self)
 
     ### no longer needed now that we are using a "real" NSToolbar ###
-    #def window_willPositionSheet_usingRect_(self, window, sheet, rect):
+    # def window_willPositionSheet_usingRect_(self, window, sheet, rect):
     #    '''NSWindowDelegate method that allows us to modify the
     #    position sheets appear attached to a window'''
     #    # move the anchor point of our sheets to below our toolbar
@@ -343,7 +342,6 @@ class MSCMainWindowController(NSWindowController):
     def windowDidResignMain_(self, notification):
         '''Our window was deactivated, make sure controls enabled as needed'''
         self.enableOrDisableToolbarButtons_(NO)
-
 
     def configureFullScreenMenuItem(self):
         '''check to see if NSWindow's toggleFullScreen: selector is implemented.
@@ -604,7 +602,8 @@ class MSCMainWindowController(NSWindowController):
             return
         msclog.debug_log(
             'updating software list page with category: '
-            '%s, developer; %s, filter: %s' % (category, developer, our_filter))
+            '%s, developer; %s, filter: %s' %
+            (category, developer, our_filter))
         items_html = mschtml.build_list_page_items_html(
             category=category, developer=developer, filter=our_filter)
         document = self.webView.mainFrameDocument()
@@ -673,7 +672,7 @@ class MSCMainWindowController(NSWindowController):
                              or filename == u'categories.html')):
                     try:
                         mschtml.build_page(filename)
-                    except BaseException, err:
+                    except BaseException as err:
                         msclog.debug_log(u'Could not build page for %s: %s'
                                          % (filename, err))
         return request
@@ -723,7 +722,7 @@ class MSCMainWindowController(NSWindowController):
 
     def webView_didFailLoadWithError_forFrame_(self, view, error, frame):
         '''Stop progress spinner and log error'''
-        #TO-DO: display an error page?
+        # TO-DO: display an error page?
         self.progressSpinner.stopAnimation_(self)
         msclog.debug_log('Committed load error: %s' % error)
 
@@ -738,8 +737,8 @@ class MSCMainWindowController(NSWindowController):
                          'installButtonClicked',
                          'updateOptionalInstallButtonClicked:',
                          'updateOptionalInstallButtonFinishAction:']:
-            return NO # this selector is NOT _excluded_ from scripting
-        return YES # disallow everything else
+            return NO  # this selector is NOT _excluded_ from scripting
+        return YES  # disallow everything else
 
 #### handling DOM UI elements ####
 
@@ -789,7 +788,8 @@ class MSCMainWindowController(NSWindowController):
         warning_text_element = document.getElementById_('update-warning-text')
         if warning_text_element:
             warning_text_element.setInnerHTML_('')
-        install_all_button = document.getElementById_('install-all-button-text')
+        install_all_button = document.getElementById_(
+            'install-all-button-text')
         if install_all_button:
             install_all_button.setInnerText_(
                 NSLocalizedString(u"Cancel",
@@ -831,10 +831,10 @@ class MSCMainWindowController(NSWindowController):
         try:
             item.update_status()
             return True
-        except MunkiItems.SelfServiceError, err:
+        except MunkiItems.SelfServiceError as err:
             msclog.debug_log(str(err))
             alertTitle = NSLocalizedString(
-                u"System configuration problem", 
+                u"System configuration problem",
                 u"System configuration problem alert title")
             alertDetail = NSLocalizedString(
                 u"A systems configuration issue is preventing Managed Software "
@@ -842,11 +842,7 @@ class MSCMainWindowController(NSWindowController):
                 u"System configuration problem alert detail")
             alertDetail = alertDetail + "\n" + str(err)
             alert = NSAlert.alertWithMessageText_defaultButton_alternateButton_otherButton_informativeTextWithFormat_(
-                alertTitle,
-                NSLocalizedString(u"OK", u"OK button title"),
-                nil,
-                nil,
-                u"%@", alertDetail)
+                alertTitle, NSLocalizedString(u"OK", u"OK button title"), nil, nil, u"%@", alertDetail)
             result = alert.runModal()
             return False
 
@@ -1086,16 +1082,9 @@ class MSCMainWindowController(NSWindowController):
         # show the alert sheet
         self.window().makeKeyAndOrderFront_(self)
         alert = NSAlert.alertWithMessageText_defaultButton_alternateButton_otherButton_informativeTextWithFormat_(
-            alertTitle,
-            cancelLabel,
-            OKLabel,
-            nil,
-            u"%@", alertDetail)
+            alertTitle, cancelLabel, OKLabel, nil, u"%@", alertDetail)
         alert.beginSheetModalForWindow_modalDelegate_didEndSelector_contextInfo_(
-            self.window(),
-            self,
-            self.actionAlertDidEnd_returnCode_contextInfo_,
-            nil)
+            self.window(), self, self.actionAlertDidEnd_returnCode_contextInfo_, nil)
 
     def actionAlertDidEnd_returnCode_contextInfo_(
             self, alert, returncode, contextinfo):
@@ -1173,13 +1162,8 @@ class MSCMainWindowController(NSWindowController):
                 u"Help isn't available for Managed Software Center.",
                 u"No help alert detail")
             alert = NSAlert.alertWithMessageText_defaultButton_alternateButton_otherButton_informativeTextWithFormat_(
-                alertTitle,
-                NSLocalizedString(u"OK", u"OK button title"),
-                nil,
-                nil,
-                u"%@", alertDetail)
+                alertTitle, NSLocalizedString(u"OK", u"OK button title"), nil, nil, u"%@", alertDetail)
             result = alert.runModal()
-
 
     @IBAction
     def navigationBtnClicked_(self, sender):
@@ -1244,10 +1228,10 @@ class MSCMainWindowController(NSWindowController):
         '''return True if current tab selected is Updates'''
         return self.updatesToolbarButton.state() == NSOnState
 
-    #def currentPageIsMyItemsPage(self):
+    # def currentPageIsMyItemsPage(self):
     #    '''return True if current tab selected is My Items'''
     #    return (self.myItemsToolbarButton.state() == NSOnState)
 
-    #def currentPageIsCategoriesPage(self):
+    # def currentPageIsCategoriesPage(self):
     #    '''return True if current tab selected is Categories'''
     #    return (self.categoriesToolbarButton.state() == NSOnState)

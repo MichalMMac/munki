@@ -44,6 +44,7 @@ NOTIFICATION_ID = 'com.googlecode.munki.managedsoftwareupdate.statusUpdate'
 # that come "online" late can get current state
 _currentStatus = {}
 
+
 def initStatusDict():
     '''Initialize our status dictionary'''
     global _currentStatus
@@ -56,6 +57,7 @@ def initStatusDict():
         'command': '',
         'pid': os.getpid()
     }
+
 
 def launchMunkiStatus():
     '''Uses launchd KeepAlive path so it launches from a launchd agent
@@ -155,4 +157,3 @@ def restartAlert():
     # now clear the command; unlike the other fields, this
     # should not persist between notifications
     _currentStatus['command'] = ''
-

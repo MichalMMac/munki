@@ -47,7 +47,7 @@ def read_file(pathname):
         data = fileobj.read()
         fileobj.close()
         return data
-    except (OSError, IOError), err:
+    except (OSError, IOError) as err:
         munkicommon.display_error(
             'Could not read %s: %s', pathname, err)
         return ''
@@ -61,7 +61,7 @@ def write_file(stringdata, pathname):
         fileobject.write(stringdata)
         fileobject.close()
         return pathname
-    except (OSError, IOError), err:
+    except (OSError, IOError) as err:
         munkicommon.display_error('Couldn\'t write %s to %s: %s',
                                   stringdata, pathname, err)
         return ''
@@ -85,7 +85,7 @@ def pem_cert_sha1_digest(cert_path):
     try:
         raw_bytes = pem_cert_bytes(cert_path)
         return hashlib.sha1(raw_bytes).hexdigest().upper()
-    except BaseException, err:
+    except BaseException as err:
         munkicommon.display_error('Error reading %s: %s' % (cert_path, err))
         return None
 
@@ -128,7 +128,8 @@ def get_munki_client_cert_info():
     if munkicommon.pref('UseClientCertificate'):
         cert_info['client_cert_path'] = (
             munkicommon.pref('ClientCertificatePath') or None)
-        cert_info['client_key_path'] = munkicommon.pref('ClientKeyPath') or None
+        cert_info['client_key_path'] = munkicommon.pref(
+            'ClientKeyPath') or None
         if not cert_info['client_cert_path']:
             for name in ['cert.pem', 'client.pem', 'munki.pem']:
                 client_cert_path = os.path.join(
@@ -186,7 +187,7 @@ def add_ca_certs_to_system_keychain(cert_info=None):
                               '-k', SYSTEM_KEYCHAIN, cert)
             if output:
                 munkicommon.display_debug2(output)
-        except SecurityError, err:
+        except SecurityError as err:
             munkicommon.display_error(
                 'Could not add CA cert %s into System keychain: %s', cert, err)
 
@@ -239,7 +240,7 @@ def make_client_keychain(cert_info=None):
                           '-p', keychain_pass, abs_keychain_path)
         if output:
             munkicommon.display_debug2(output)
-    except SecurityError, err:
+    except SecurityError as err:
         munkicommon.display_error(
             'Could not create keychain %s: %s', abs_keychain_path, err)
         if original_home:
@@ -275,7 +276,7 @@ def make_client_keychain(cert_info=None):
                 'import', client_cert_file, '-A', '-k', abs_keychain_path)
             if output:
                 munkicommon.display_debug2(output)
-        except SecurityError, err:
+        except SecurityError as err:
             munkicommon.display_error(
                 'Could not import %s: %s', client_cert_file, err)
     if combined_pem:
@@ -302,7 +303,7 @@ def make_client_keychain(cert_info=None):
             default_keychain = [
                 x.strip().strip('"')
                 for x in output.split('\n') if x.strip()][0]
-        except SecurityError, err:
+        except SecurityError as err:
             # error raised if there is no default
             default_keychain = None
         # Temporarily assign the default keychain to ours
@@ -311,7 +312,7 @@ def make_client_keychain(cert_info=None):
                 'default-keychain', '-s', abs_keychain_path)
             if output:
                 munkicommon.display_debug2(output)
-        except SecurityError, err:
+        except SecurityError as err:
             munkicommon.display_error(
                 'Could not set default keychain to %s failed: %s'
                 % (abs_keychain_path, err))
@@ -326,7 +327,7 @@ def make_client_keychain(cert_info=None):
                     '-s', url, '-Z', id_hash, abs_keychain_path)
                 if output:
                     munkicommon.display_debug2(output)
-            except SecurityError, err:
+            except SecurityError as err:
                 munkicommon.display_error(
                     'Setting identity preference for %s failed: %s'
                     % (url, err))
@@ -361,7 +362,7 @@ def add_to_keychain_list(keychain_path):
     # Preserve the order in case we need to append to them
     search_keychains = [x.strip().strip('"')
                         for x in output.split('\n') if x.strip()]
-    if not keychain_path in search_keychains:
+    if keychain_path not in search_keychains:
         # Keychain is not in the search paths
         munkicommon.display_debug2('Adding client keychain to search path...')
         search_keychains.append(keychain_path)
@@ -371,7 +372,7 @@ def add_to_keychain_list(keychain_path):
             if output:
                 munkicommon.display_debug2(output)
             added_keychain = True
-        except SecurityError, err:
+        except SecurityError as err:
             munkicommon.display_error(
                 'Could not add keychain %s to keychain list: %s',
                 keychain_path, err)
@@ -402,7 +403,7 @@ def remove_from_keychain_list(keychain_path):
                 'list-keychains', '-d', 'user', '-s', *filtered_keychains)
             if output:
                 munkicommon.display_debug2(output)
-        except SecurityError, err:
+        except SecurityError as err:
             munkicommon.display_error(
                 'Could not set new keychain list: %s', err)
 
@@ -416,14 +417,14 @@ def unlock_and_set_nonlocking(keychain_path):
             'unlock-keychain', '-p', keychain_pass, keychain_path)
         if output:
             munkicommon.display_debug2(output)
-    except SecurityError, err:
+    except SecurityError as err:
         # some problem unlocking the keychain.
         munkicommon.display_error(
             'Could not unlock %s: %s.', keychain_path, err)
         # delete it
         try:
             os.unlink(keychain_path)
-        except OSError, err:
+        except OSError as err:
             munkicommon.display_error(
                 'Could not remove %s: %s.', keychain_path, err)
         return
@@ -431,7 +432,7 @@ def unlock_and_set_nonlocking(keychain_path):
         output = security('set-keychain-settings', keychain_path)
         if output:
             munkicommon.display_debug2(output)
-    except SecurityError, err:
+    except SecurityError as err:
         munkicommon.display_error(
             'Could not set keychain settings for %s: %s',
             keychain_path, err)
@@ -482,7 +483,7 @@ def debug_output():
             munkicommon.display_debug1('***Info for %s***' % keychainfile)
             munkicommon.display_debug1(
                 security('show-keychain-info', keychainfile))
-    except SecurityError, err:
+    except SecurityError as err:
         munkicommon.display_error(str(err))
 
 
@@ -545,7 +546,7 @@ class MunkiKeychain(object):
             # we have client certs; we should build a keychain using them
             try:
                 os.unlink(self.keychain_path)
-            except (OSError, IOError), err:
+            except (OSError, IOError) as err:
                 munkicommon.display_error(
                     'Could not remove pre-existing %s: %s'
                     % (self.keychain_path, err))

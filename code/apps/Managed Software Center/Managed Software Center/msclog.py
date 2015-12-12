@@ -37,6 +37,7 @@ MSULOGFILE = "%s.log"
 MSULOGENABLED = False
 MSUDEBUGLOGENABLED = False
 
+
 class FleetingFileHandler(logging.FileHandler):
     """File handler which opens/closes the log file only during log writes."""
 
@@ -58,7 +59,7 @@ class FleetingFileHandler(logging.FileHandler):
             stream = open(self.baseFilename, self.mode)
         else:
             stream = logging.codecs.open(
-                         self.baseFilename, self.mode, self.encoding)
+                self.baseFilename, self.mode, self.encoding)
         return stream
 
     def __flush(self):
@@ -97,10 +98,10 @@ def setup_logging(username=None):
     global MSUDEBUGLOGENABLED
 
     if (logging.root.handlers and
-        logging.root.handlers[0].__class__ is FleetingFileHandler):
+            logging.root.handlers[0].__class__ is FleetingFileHandler):
         return
-        
-    if  munki.pref('MSUDebugLogEnabled'):
+
+    if munki.pref('MSUDebugLogEnabled'):
         MSUDEBUGLOGENABLED = True
 
     if munki.pref('MSULogEnabled'):
@@ -114,8 +115,8 @@ def setup_logging(username=None):
 
     if not os.path.exists(MSULOGDIR):
         try:
-            os.mkdir(MSULOGDIR, 01777)
-        except OSError, err:
+            os.mkdir(MSULOGDIR, 0o1777)
+        except OSError as err:
             logging.error('mkdir(%s): %s', MSULOGDIR, str(err))
             return
 
@@ -125,7 +126,7 @@ def setup_logging(username=None):
 
     # freshen permissions, if possible.
     try:
-        os.chmod(MSULOGDIR, 01777)
+        os.chmod(MSULOGDIR, 0o1777)
     except OSError:
         pass
 
@@ -136,7 +137,10 @@ def setup_logging(username=None):
 
     while attempt < 10:
         try:
-            fref = os.open(filename, os.O_RDWR|os.O_CREAT|os.O_NOFOLLOW, 0600)
+            fref = os.open(
+                filename,
+                os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW,
+                0o600)
             st = os.fstat(fref)
             ours = stat.S_ISREG(st.st_mode) and st.st_uid == os.getuid()
             os.close(fref)
@@ -170,7 +174,7 @@ def setup_logging(username=None):
 
     try:
         ffh = FleetingFileHandler(filename)
-    except IOError, err:
+    except IOError as err:
         logging.error('Error opening log file %s: %s', filename, str(err))
 
     ffh.setFormatter(logging.Formatter(log_format, None))
@@ -204,4 +208,3 @@ def debug_log(msg):
     if MSUDEBUGLOGENABLED:
         NSLog('%@', msg)
         log('MSC', 'debug', msg)
-

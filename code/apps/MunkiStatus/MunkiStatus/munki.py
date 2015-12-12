@@ -27,17 +27,18 @@ from SystemConfiguration import SCDynamicStoreCopyConsoleUser
 
 INSTALLATLOGOUTFILE = "/private/tmp/com.googlecode.munki.installatlogout"
 
+
 def call(cmd):
     '''Convenience function; works around an issue with subprocess.call
     in PyObjC in Snow Leopard'''
     proc = subprocess.Popen(cmd, bufsize=1, stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+                            stderr=subprocess.PIPE)
     (output, err) = proc.communicate()
     return proc.returncode
 
 
 def getconsoleuser():
-    cfuser = SCDynamicStoreCopyConsoleUser( None, None, None )
+    cfuser = SCDynamicStoreCopyConsoleUser(None, None, None)
     return cfuser[0]
 
 
@@ -90,7 +91,7 @@ def pythonScriptRunning(scriptname):
             try:
                 # first look for Python processes
                 if (args[0].find('MacOS/Python') != -1 or
-                    args[0].find('python') != -1):
+                        args[0].find('python') != -1):
                     # look for first argument being scriptname
                     if args[1].find(scriptname) != -1:
                         try:

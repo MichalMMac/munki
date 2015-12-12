@@ -70,7 +70,7 @@ def verifyFileOnlyWritableByMunkiAndRoot(file_path):
     """
     try:
         file_stat = os.stat(file_path)
-    except OSError, err:
+    except OSError as err:
         raise VerifyFilePermissionsError(
             '%s does not exist. \n %s' % (file_path, str(err)))
 
@@ -90,7 +90,7 @@ def verifyFileOnlyWritableByMunkiAndRoot(file_path):
         # verify other users cannot write to the file.
         elif file_stat.st_mode & stat.S_IWOTH != 0:
             raise InsecureFilePermissionsError('world writable!')
-    except InsecureFilePermissionsError, err:
+    except InsecureFilePermissionsError as err:
         raise InsecureFilePermissionsError(
             '%s is not secure! %s' % (file_path, err.args[0]))
 
@@ -114,7 +114,7 @@ def runExternalScript(script, allow_insecure=False, script_args=()):
     if not allow_insecure:
         try:
             verifyFileOnlyWritableByMunkiAndRoot(script)
-        except VerifyFilePermissionsError, err:
+        except VerifyFilePermissionsError as err:
             msg = ('Skipping execution due to failed file permissions '
                    'verification: %s\n%s' % (script, str(err)))
             raise RunExternalScriptError(msg)
@@ -129,7 +129,7 @@ def runExternalScript(script, allow_insecure=False, script_args=()):
                                 stderr=subprocess.PIPE)
         (stdout, stderr) = proc.communicate()
         return proc.returncode, stdout.decode('UTF-8', 'replace'), \
-                                stderr.decode('UTF-8', 'replace')
+            stderr.decode('UTF-8', 'replace')
     else:
         raise RunExternalScriptError('%s not executable' % script)
 

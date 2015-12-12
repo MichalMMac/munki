@@ -55,7 +55,7 @@ class MSUAppDelegate(NSObject):
         # pylint: disable=no-self-use
 
         consoleuser = munki.getconsoleuser()
-        if consoleuser == None or consoleuser == u"loginwindow":
+        if consoleuser is None or consoleuser == u"loginwindow":
             # don't show menu bar
             NSMenu.setMenuBarVisible_(NO)
             # make sure we're active
@@ -73,4 +73,3 @@ class MSUAppDelegate(NSObject):
 
         # show the default initial view
         self.statusWindowController.initStatusSession()
-

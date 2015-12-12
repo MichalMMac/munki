@@ -38,6 +38,7 @@ from AppKit import *
 
 debug = False
 
+
 def getLoginwindowPicture():
     '''Returns the image behind the loginwindow (in < 10.7)'''
     desktopPicturePath = ''
@@ -149,11 +150,11 @@ class MSUStatusWindowController(NSObject):
     def initStatusSession(self):
         '''Initialize our status session'''
         consoleuser = munki.getconsoleuser()
-        if consoleuser == None or consoleuser == u"loginwindow":
+        if consoleuser is None or consoleuser == u"loginwindow":
             self.displayBackdropWindow()
 
         if self.window:
-            if consoleuser == None or consoleuser == u"loginwindow":
+            if consoleuser is None or consoleuser == u"loginwindow":
                 # needed so the window can show over the loginwindow
                 self.window.setCanBecomeVisibleWithoutLogin_(True)
                 self.window.setLevel_(NSScreenSaverWindowLevel - 1)
@@ -251,7 +252,7 @@ class MSUStatusWindowController(NSObject):
                 # with the login UI
                 self.backdropImageFld.setHidden_(True)
                 translucentColor = NSColor.blackColor(
-                    ).colorWithAlphaComponent_(0.35)
+                ).colorWithAlphaComponent_(0.35)
                 self.backdropWindow.setBackgroundColor_(translucentColor)
                 self.backdropWindow.setOpaque_(False)
                 self.backdropWindow.setIgnoresMouseEvents_(False)
@@ -325,11 +326,9 @@ class MSUStatusWindowController(NSObject):
         self.restartAlertDismissed = 0
         # pylint: disable=line-too-long
         nsa = NSAlert.alertWithMessageText_defaultButton_alternateButton_otherButton_informativeTextWithFormat_(
-            NSLocalizedString(u"Restart Required", None),
-            NSLocalizedString(u"Restart", None),
-            nil,
-            nil,
             NSLocalizedString(
+                u"Restart Required", None), NSLocalizedString(
+                u"Restart", None), nil, nil, NSLocalizedString(
                 u"Software installed or removed requires a restart. "
                 "You will have a chance to save open documents.", None))
         # pylint: enable=line-too-long
@@ -425,8 +424,9 @@ def more_localized_strings():
     dummy = NSLocalizedString(
         u"Downloading available Apple Software Updates...",
         "managedsoftwareupdate message")
-    dummy = NSLocalizedString(u"Installing available Apple Software Updates...",
-                              "managedsoftwareupdate message")
+    dummy = NSLocalizedString(
+        u"Installing available Apple Software Updates...",
+        "managedsoftwareupdate message")
 
     dummy = NSLocalizedString(u"Running Adobe Setup",
                               "managedsoftwareupdate message")

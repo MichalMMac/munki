@@ -21,6 +21,7 @@ from PyObjCTools import AppHelper
 # Disable PyLint complaining about 'invalid' camelCase names
 # pylint: disable=C0103
 
+
 class AlertController(NSObject):
     '''An object that handles some of our alerts, if for no other reason
     than to move a giant bunch of ugly code out of the WindowController'''
@@ -122,7 +123,7 @@ class AlertController(NSObject):
             u"%@", NSLocalizedString(
                 u"There are additional pending updates to install or remove.",
                 u"Additional Pending Updates detail")
-            )
+        )
         alert.beginSheetModalForWindow_modalDelegate_didEndSelector_contextInfo_(
             self.window, self,
             self.extraUpdatesAlertDidEnd_returnCode_contextInfo_, nil)
@@ -140,34 +141,43 @@ class AlertController(NSObject):
             return
         elif MunkiItems.updatesRequireRestart():
             alert = NSAlert.alertWithMessageText_defaultButton_alternateButton_otherButton_informativeTextWithFormat_(
-                NSLocalizedString(u"Restart Required",
-                                  u"Restart Required title"),
-                NSLocalizedString(u"Log out and update",
-                                  u"Log out and Update button text"),
-                NSLocalizedString(u"Cancel",
-                                  u"Cancel button title/short action text"),
+                NSLocalizedString(
+                    u"Restart Required",
+                    u"Restart Required title"),
+                NSLocalizedString(
+                    u"Log out and update",
+                    u"Log out and Update button text"),
+                NSLocalizedString(
+                    u"Cancel",
+                    u"Cancel button title/short action text"),
                 nil,
-                u"%@", NSLocalizedString(
+                u"%@",
+                NSLocalizedString(
                     u"A restart is required after updating. Please be patient "
                     "as there may be a short delay at the login window. Log "
-                    "out and update now?", u"Restart Required detail")
-                )
+                    "out and update now?",
+                    u"Restart Required detail"))
             alert.beginSheetModalForWindow_modalDelegate_didEndSelector_contextInfo_(
                 self.window, self,
                 self.logoutAlertDidEnd_returnCode_contextInfo_, nil)
         elif MunkiItems.updatesRequireLogout() or munki.installRequiresLogout():
             alert = NSAlert.alertWithMessageText_defaultButton_alternateButton_otherButton_informativeTextWithFormat_(
-                NSLocalizedString(u"Logout Required", u"Logout Required title"),
-                NSLocalizedString(u"Log out and update",
-                                  u"Log out and Update button text"),
-                NSLocalizedString(u"Cancel",
-                                  u"Cancel button title/short action text"),
+                NSLocalizedString(
+                    u"Logout Required",
+                    u"Logout Required title"),
+                NSLocalizedString(
+                    u"Log out and update",
+                    u"Log out and Update button text"),
+                NSLocalizedString(
+                    u"Cancel",
+                    u"Cancel button title/short action text"),
                 nil,
-                u"%@", NSLocalizedString(
+                u"%@",
+                NSLocalizedString(
                     u"A logout is required before updating. Please be patient "
                     "as there may be a short delay at the login window. Log "
-                    "out and update now?", u"Logout Required detail")
-                )
+                    "out and update now?",
+                    u"Logout Required detail"))
             alert.beginSheetModalForWindow_modalDelegate_didEndSelector_contextInfo_(
                 self.window, self,
                 self.logoutAlertDidEnd_returnCode_contextInfo_, nil)
@@ -226,21 +236,23 @@ class AlertController(NSObject):
         if len(munki.currentGUIusers()) > 1:
             msclog.log("MSC", "multiple_gui_users_update_cancelled")
             alert = NSAlert.alertWithMessageText_defaultButton_alternateButton_otherButton_informativeTextWithFormat_(
-                NSLocalizedString(u"Other users logged in",
-                                  u"Other Users Logged In title"),
-                NSLocalizedString(u"Cancel",
-                                  u"Cancel button title/short action text"),
+                NSLocalizedString(
+                    u"Other users logged in",
+                    u"Other Users Logged In title"),
+                NSLocalizedString(
+                    u"Cancel",
+                    u"Cancel button title/short action text"),
                 nil,
                 nil,
-                u"%@", NSLocalizedString(
+                u"%@",
+                NSLocalizedString(
                     u"There are other users logged into this computer.\n"
                     "Updating now could cause other users to lose their "
                     "work.\n\nPlease try again later after the other users "
-                    "have logged out.", u"Other Users Logged In detail")
-                )
+                    "have logged out.",
+                    u"Other Users Logged In detail"))
             alert.beginSheetModalForWindow_modalDelegate_didEndSelector_contextInfo_(
-                self.window, self,
-                self.multipleUserAlertDidEnd_returnCode_contextInfo_, nil)
+                self.window, self, self.multipleUserAlertDidEnd_returnCode_contextInfo_, nil)
             return True
         else:
             return False
@@ -272,7 +284,11 @@ class AlertController(NSObject):
             my_apps = [item['display_name'] for item in running_apps
                        if item['user'] == current_user]
             msclog.log(
-                "MSC", "conflicting_apps", ','.join(other_users_apps + my_apps))
+                "MSC",
+                "conflicting_apps",
+                ','.join(
+                    other_users_apps +
+                    my_apps))
             if other_users_apps:
                 detailText = NSLocalizedString(
                     u"Other logged in users are using the following "
@@ -281,13 +297,10 @@ class AlertController(NSObject):
                     u"Other Users Blocking Apps Running detail")
                 alert = NSAlert.alertWithMessageText_defaultButton_alternateButton_otherButton_informativeTextWithFormat_(
                     NSLocalizedString(
-                        u"Applications in use by others",
-                        u"Other Users Blocking Apps Running title"),
-                    NSLocalizedString(u"OK", u'OKButtonText'),
-                    nil,
-                    nil,
-                    u"%@", detailText % u'\n'.join(set(other_users_apps))
-                    )
+                        u"Applications in use by others", u"Other Users Blocking Apps Running title"), NSLocalizedString(
+                        u"OK", u'OKButtonText'), nil, nil, u"%@", detailText %
+                    u'\n'.join(
+                        set(other_users_apps)))
             else:
                 detailText = NSLocalizedString(
                     u"You must quit the following applications before "
@@ -295,13 +308,10 @@ class AlertController(NSObject):
                     u"Blocking Apps Running detail")
                 alert = NSAlert.alertWithMessageText_defaultButton_alternateButton_otherButton_informativeTextWithFormat_(
                     NSLocalizedString(
-                        u"Conflicting applications running",
-                        u"Blocking Apps Running title"),
-                    NSLocalizedString(u"OK", u"OK button title"),
-                    nil,
-                    nil,
-                    u"%@", detailText % u'\n'.join(set(my_apps))
-                    )
+                        u"Conflicting applications running", u"Blocking Apps Running title"), NSLocalizedString(
+                        u"OK", u"OK button title"), nil, nil, u"%@", detailText %
+                    u'\n'.join(
+                        set(my_apps)))
             alert.beginSheetModalForWindow_modalDelegate_didEndSelector_contextInfo_(
                 self.window, self,
                 self.blockingAppsRunningAlertDidEnd_returnCode_contextInfo_,
@@ -348,11 +358,9 @@ class AlertController(NSObject):
         on_battery_power = (power_info.get('PowerSource') == 'Battery Power')
         for item in firmware_alert_info:
             alert = NSAlert.alertWithMessageText_defaultButton_alternateButton_otherButton_informativeTextWithFormat_(
-                item['name'],
-                NSLocalizedString(u"Continue", u"Continue button text"),
-                NSLocalizedString(u"Cancel", u"Cancel button title/short action text"),
-                nil,
-                u"")
+                item['name'], NSLocalizedString(
+                    u"Continue", u"Continue button text"), NSLocalizedString(
+                    u"Cancel", u"Cancel button title/short action text"), nil, u"")
             if on_battery_power:
                 alert_text = NSLocalizedString(
                     u"Your computer is not connected to a power source.",
@@ -382,15 +390,19 @@ class AlertController(NSObject):
                 NSLocalizedString(
                     u"Your computer is not connected to a power source.",
                     u"No Power Source Warning text"),
-                NSLocalizedString(u"Continue", u"Continue button text"),
-                NSLocalizedString(u"Cancel",
-                                  u"Cancel button title/short action text"),
+                NSLocalizedString(
+                    u"Continue",
+                    u"Continue button text"),
+                NSLocalizedString(
+                    u"Cancel",
+                    u"Cancel button title/short action text"),
                 nil,
-                u"%@", NSLocalizedString(
+                u"%@",
+                NSLocalizedString(
                     u"For best results, you should connect your computer to a "
                     "power source before updating. Are you sure you want to "
-                    "continue the update?", u"No Power Source Warning detail")
-                )
+                    "continue the update?",
+                    u"No Power Source Warning detail"))
             msclog.log("MSU", "alert_on_battery_power")
             # making UI consistent with Apple Software Update...
             # set Cancel button to be activated by return key

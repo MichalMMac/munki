@@ -268,6 +268,7 @@ def convertIconToPNG(app_name, destination_path, desired_size):
 
 class MSCHTMLFilter(HTMLParser):
     '''Filters HTML and HTML fragments for use inside description paragraphs'''
+
     def __init__(self):
         HTMLParser.__init__(self)
         # ignore everything inside one of these tags
@@ -367,6 +368,7 @@ class SelfServiceError(Exception):
 
 class SelfService(object):
     '''An object to wrap interactions with the SelfServiceManifest'''
+
     def __init__(self):
         self._installs = set(
             munki.readSelfServiceManifest().get('managed_installs', []))
@@ -450,7 +452,8 @@ class GenericItem(dict):
                 self['raw_description'] = filtered_html(self['description'])
             except HTMLParseError:
                 self['raw_description'] = (
-                    'Invalid HTML in description for %s' % self['display_name'])
+                    'Invalid HTML in description for %s' %
+                    self['display_name'])
             del self['description']
         if not 'raw_description' in self:
             self['raw_description'] = u''
@@ -490,7 +493,7 @@ class GenericItem(dict):
            for our HTML templates (which want a dictionary-like object)'''
         try:
             return super(GenericItem, self).__getitem__(name)
-        except KeyError, err:
+        except KeyError as err:
             try:
                 attr = getattr(self, name)
             except AttributeError:
@@ -890,22 +893,22 @@ class OptionalItem(GenericItem):
             elif self['name'] in self_service_uninstalls:
                 status = u'removal-requested'
                 self['updatecheck_needed'] = True
-            else: # not in managed_uninstalls
+            else:  # not in managed_uninstalls
                 if not self.get('needs_update'):
                     if self.get('uninstallable'):
                         status = u'installed'
-                    else: # not uninstallable
+                    else:  # not uninstallable
                         status = u'installed-not-removable'
-                else: # there is an update available
+                else:  # there is an update available
                     if self['name'] in managed_update_names:
                         status = u'update-must-be-installed'
                     elif self['dependent_items']:
                         status = u'update-must-be-installed'
                     elif self['name'] in self_service_installs:
                         status = u'update-will-be-installed'
-                    else: # not in managed_installs
+                    else:  # not in managed_installs
                         status = u'update-available'
-        else: # not installed
+        else:  # not installed
             if self.get('install_error'):
                 status = u'install-error'
             elif self.get('note'):
@@ -931,7 +934,7 @@ class OptionalItem(GenericItem):
             elif self['name'] in self_service_installs:
                 status = u'install-requested'
                 self['updatecheck_needed'] = True
-            else: # not in managed_installs
+            else:  # not in managed_installs
                 status = u'not-installed'
         return status
 

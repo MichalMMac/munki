@@ -238,7 +238,7 @@ class Gurl(NSObject):
             string = str(plistData)
         try:
             xattr.setxattr(self.destination_path, self.GURL_XATTR, string)
-        except IOError, err:
+        except IOError as err:
             self.log('Could not store metadata to %s: %s'
                      % (self.destination_path, err))
 
@@ -365,7 +365,7 @@ class Gurl(NSObject):
         # we don't actually use the connection argument, so
         # pylint: disable=W0613
 
-        if response == None:
+        if response is None:
             # This isn't a real redirect, this is without talking to a server.
             # Pass it back as-is
             return request
@@ -376,9 +376,9 @@ class Gurl(NSObject):
         newURL = request.URL().absoluteString()
         self.redirection.append([newURL, dict(response.allHeaderFields())])
         newParsedURL = urlparse(newURL)
-        # This code was largely based on the work of Andreas Fuchs 
+        # This code was largely based on the work of Andreas Fuchs
         # (https://github.com/munki/munki/pull/465)
-        if self.follow_redirects == True or self.follow_redirects == 'all':
+        if self.follow_redirects or self.follow_redirects == 'all':
             # Allow the redirect
             self.log('Allowing redirect to: %s' % newURL)
             return request
@@ -432,8 +432,8 @@ class Gurl(NSObject):
             # fall back to system-provided default behavior
             self.log('Allowing OS to handle authentication request')
             challenge.sender(
-                ).performDefaultHandlingForAuthenticationChallenge_(
-                    challenge)
+            ).performDefaultHandlingForAuthenticationChallenge_(
+                challenge)
 
     def connection_canAuthenticateAgainstProtectionSpace_(
             self, connection, protectionSpace):
@@ -451,8 +451,9 @@ class Gurl(NSObject):
             host = protectionSpace.host()
             realm = protectionSpace.realm()
             authenticationMethod = protectionSpace.authenticationMethod()
-            self.log('Protection space found. Host: %s Realm: %s AuthMethod: %s'
-                     % (host, realm, authenticationMethod))
+            self.log(
+                'Protection space found. Host: %s Realm: %s AuthMethod: %s' %
+                (host, realm, authenticationMethod))
             if self.username and self.password and authenticationMethod in [
                     'NSURLAuthenticationMethodDefault',
                     'NSURLAuthenticationMethodHTTPBasic',
@@ -503,8 +504,8 @@ class Gurl(NSObject):
             # fall back to system-provided default behavior
             self.log('Continuing without credential.')
             challenge.sender(
-                ).continueWithoutCredentialForAuthenticationChallenge_(
-                    challenge)
+            ).continueWithoutCredentialForAuthenticationChallenge_(
+                challenge)
 
     def connection_didReceiveData_(self, connection, data):
         '''NSURLConnectionDataDelegate method
@@ -520,4 +521,4 @@ class Gurl(NSObject):
         self.bytesReceived += len(data)
         if self.expectedLength != NSURLResponseUnknownLength:
             self.percentComplete = int(
-                float(self.bytesReceived)/float(self.expectedLength) * 100.0)
+                float(self.bytesReceived) / float(self.expectedLength) * 100.0)
